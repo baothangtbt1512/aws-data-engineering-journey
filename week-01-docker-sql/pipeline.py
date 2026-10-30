@@ -67,13 +67,19 @@ def ingest_parquet(file_path: str, engine, table_name: str, batch_size: int = 10
             for col in datetime_cols:
                 batch_df[col] = pd.to_datetime(batch_df[col])
 
+            # Calculate safe chunksize for PostgreSQL protocol limit (max 65,535 parameters)
+            num_cols = len(batch_df.columns)
+            safe_chunksize = max(1, 65_000 // num_cols)
+            # Cap at 2000 rows per multi-insert statement to remain well within protocol limit
+            safe_chunksize = min(safe_chunksize, 2_000)
+
             mode = "replace" if is_first_batch else "append"
             batch_df.to_sql(
                 name=table_name,
                 con=engine,
                 if_exists=mode,
                 index=False,
-                chunksize=10_000,
+                chunksize=safe_chunksize,
                 method="multi",
             )
 
@@ -104,13 +110,16 @@ def ingest_csv(file_path: str, engine, table_name: str, batch_size: int = 100_00
         for col in datetime_cols:
             chunk[col] = pd.to_datetime(chunk[col])
 
+        num_cols = len(chunk.columns)
+        safe_chunksize = min(max(1, 65_000 // num_cols), 2_000)
+
         mode = "replace" if is_first_batch else "append"
         chunk.to_sql(
             name=table_name,
             con=engine,
             if_exists=mode,
             index=False,
-            chunksize=10_000,
+            chunksize=safe_chunksize,
             method="multi",
         )
 
