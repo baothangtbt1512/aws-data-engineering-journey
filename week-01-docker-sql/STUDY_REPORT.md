@@ -259,15 +259,22 @@ $$\text{FUNCTION}() \text{ OVER } (\text{PARTITION BY } \text{cột\_phân\_nhó
 | **`RANK()`** | Trùng giá trị thì đồng hạng, nhưng **nhảy cóc** số thứ tự sau | $1, 1, \mathbf{3}, 4$ | Thi cử (đồng hạng 1 thì không có giải nhì) |
 | **`DENSE_RANK()`** | Trùng giá trị thì đồng hạng, **không nhảy cóc** số tiếp theo | $1, 1, \mathbf{2}, 3$ | **Xếp Top N doanh thu chuẩn xác** |
 
-* **Code mẫu Deduplication (Câu hỏi phỏng vấn kinh điển):**
+* **Code mẫu Deduplication (Câu hỏi phỏng vấn kinh điển - Chạy được ngay):**
   ```sql
+  -- Lọc giữ lại 1 chuyến xe mới nhất của mỗi địa điểm đón khách trong ngày 01/01/2023
   WITH ranked_records AS (
-      SELECT *,
+      SELECT 
+          "PULocationID",
+          tpep_pickup_datetime,
+          trip_distance,
+          total_amount,
           ROW_NUMBER() OVER (
-              PARTITION BY trip_id               -- Nhóm theo mã định danh duy nhất
-              ORDER BY tpep_pickup_datetime DESC -- Ưu tiên bản ghi cập nhật mới nhất
+              PARTITION BY "PULocationID"            -- Nhóm theo từng địa điểm đón khách
+              ORDER BY tpep_pickup_datetime DESC     -- Ưu tiên bản ghi cập nhật mới nhất
           ) AS rn
-      FROM raw_trips
+      FROM yellow_taxi_trips
+      WHERE tpep_pickup_datetime >= '2023-01-01 00:00:00'
+        AND tpep_pickup_datetime <  '2023-01-02 00:00:00'
   )
   SELECT * FROM ranked_records WHERE rn = 1; -- Loại bỏ toàn bộ bản ghi trùng lặp
   ```
@@ -298,23 +305,39 @@ $$\text{FUNCTION}() \text{ OVER } (\text{PARTITION BY } \text{cột\_phân\_nhó
 ---
 
 #### C. Tổng dồn lũy kế (Running Total) & Trung bình trượt (Moving Average)
-* **Khái niệm:** Phép tính tích lũy tăng dần từ đầu kỳ đến thời điểm hiện tại.
-* **Cú pháp & Ví dụ:**
+* **Khái niệm:** Phép tính tích lũy tăng dần từ đầu kỳ đến thời điểm hiện tại và làm mượt số liệu theo chu kỳ trượt.
+* **Cú pháp & Ví dụ (Chạy trực tiếp trên bảng `yellow_taxi_trips`):**
   ```sql
+  -- BƯỚC 1: Dùng CTE gom nhóm tính tổng doanh thu mỗi ngày trong tháng 1/2023
+  WITH daily_revenue_summary AS (
+      SELECT 
+          DATE(tpep_pickup_datetime) AS trip_date,
+          ROUND(SUM(total_amount)::numeric, 2) AS daily_revenue
+      FROM yellow_taxi_trips
+      WHERE tpep_pickup_datetime >= '2023-01-01' 
+        AND tpep_pickup_datetime <  '2023-02-01'
+        AND total_amount > 0
+      GROUP BY DATE(tpep_pickup_datetime)
+  )
+  -- BƯỚC 2: Áp dụng Window Functions trên bảng kết quả
   SELECT 
       trip_date,
       daily_revenue,
-      -- Running Total: Cộng dồn từ ngày đầu tiên đến ngày hiện tại
+      -- Running Total: Cộng dồn doanh thu từ ngày 01/01 đến ngày hiện tại
       SUM(daily_revenue) OVER (
           ORDER BY trip_date ASC
           ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
       ) AS running_total_revenue,
-      -- 3-Day Moving Average: Trung bình trượt của 2 ngày trước + ngày hiện tại
-      AVG(daily_revenue) OVER (
-          ORDER BY trip_date ASC
-          ROWS BETWEEN 2 PRECEDING AND CURRENT ROW
+      -- 3-Day Moving Average: Trung bình trượt của 2 ngày trước + ngày hôm nay
+      ROUND(
+          AVG(daily_revenue) OVER (
+              ORDER BY trip_date ASC
+              ROWS BETWEEN 2 PRECEDING AND CURRENT ROW
+          )::numeric, 
+          2
       ) AS moving_avg_3d
-  FROM daily_revenue_summary;
+  FROM daily_revenue_summary
+  ORDER BY trip_date ASC;
   ```
 
 ---
@@ -341,7 +364,36 @@ flowchart TD
 
 ### 3.5. Viết SQL Module Hóa: CTE (`WITH ... AS`) vs Subquery
 * **Quy tắc Clean Code của Data Engineer:**
-  Không bao giờ lồng Subquery 3-4 tầng gián tiếp (Anti-pattern). Luôn dùng CTE (Common Table Expression) để chia nhỏ bài toán thành các pipeline con rõ ràng, dễ bảo trì và dễ viết unit test.
+  Không bao giờ lồng Subquery 3-4 tầng gián tiếp (Anti-pattern). Luôn dùng CTE (Common Table Expression) để chia nhỏ bài toán thành các pipeline con tuần tự, rõ ràng, dễ bảo trì và dễ viết unit test.
+* **Code so sánh thực tế:**
+  ```sql
+  -- CÁCH VIẾT CHUẨN DATA ENGINEER (DÙNG CTE):
+  WITH clean_trips AS (
+      SELECT 
+          tpep_pickup_datetime,
+          "PULocationID",
+          total_amount
+      FROM yellow_taxi_trips
+      WHERE total_amount > 0 AND trip_distance > 0
+  ),
+  location_summary AS (
+      SELECT 
+          "PULocationID",
+          COUNT(*) AS total_trips,
+          ROUND(AVG(total_amount)::numeric, 2) AS avg_amount
+      FROM clean_trips
+      GROUP BY "PULocationID"
+  )
+  SELECT * 
+  FROM location_summary 
+  ORDER BY total_trips DESC 
+  LIMIT 10;
+  ```
+
+> [!NOTE]
+> **Lưu ý đặc biệt về tên cột có chữ hoa trong PostgreSQL:**
+> Do bảng `yellow_taxi_trips` được nạp tự động từ Pandas DataFrame, các cột chứa chữ in hoa như `"PULocationID"`, `"DOLocationID"`, `"VendorID"` được PostgreSQL giữ nguyên theo đúng casing khi bọc trong dấu ngoặc kép.  
+> Nếu bạn viết `WHERE PULocationID = 132` (không có ngoặc kép), PostgreSQL sẽ tự động chuyển thành chữ thường `pulocationid` và báo lỗi: `ERROR: column "pulocationid" does not exist`. **Luôn nhớ đặt tên cột có chữ hoa trong dấu ngoặc kép đôi `""`!**
 
 ---
 
