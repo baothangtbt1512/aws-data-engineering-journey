@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Data Rescue: NYC Taxi Arena - SQL & DE Game</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600;700&family=Inter:wght@400;600;700;800&display=swap');
+    
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #0b0f19;
+      color: #e2e8f0;
+    }
+    code, pre, .font-mono {
+      font-family: 'Fira Code', monospace;
+    }
+    .neon-border {
+      box-shadow: 0 0 15px rgba(56, 189, 248, 0.25), inset 0 0 15px rgba(56, 189, 248, 0.1);
+    }
+    .neon-text {
+      text-shadow: 0 0 8px rgba(56, 189, 248, 0.6);
+    }
+    .gold-glow {
+      box-shadow: 0 0 20px rgba(250, 204, 21, 0.3);
+    }
+    @keyframes pulse-subtle {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.95; transform: scale(0.995); }
+    }
+    .animate-pulse-slow {
+      animation: pulse-subtle 3s infinite ease-in-out;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between selection:bg-cyan-500 selection:text-black">
+
+  <!-- TOP HEADER / STATUS BAR -->
+  <header class="border-b border-slate-800 bg-slate-900/80 backdrop-blur sticky top-0 z-50 px-4 py-3">
+    <div class="max-w-5xl mx-auto flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <span class="text-2xl">🚖</span>
+        <div>
+          <h1 class="text-lg font-bold text-cyan-400 tracking-wider flex items-center gap-2">
+            DATA RESCUE: NYC ARENA
+            <span class="text-xs bg-cyan-950 text-cyan-300 border border-cyan-800 px-2 py-0.5 rounded-full font-mono">Week 1 Edition</span>
+          </h1>
+          <p class="text-xs text-slate-400">AWS Data Engineer Intern Simulation</p>
+        </div>
+      </div>
+
+      <!-- GAME STATS -->
+      <div class="flex items-center gap-4">
+        <!-- LIVES -->
+        <div class="flex items-center gap-1 bg-slate-800/80 px-3 py-1.5 rounded-lg border border-slate-700">
+          <span class="text-xs text-slate-400 font-bold mr-1">HP:</span>
+          <div id="lives-container" class="flex gap-1 text-red-500 text-sm">
+            <i class="fa-solid fa-heart"></i>
+            <i class="fa-solid fa-heart"></i>
+            <i class="fa-solid fa-heart"></i>
+          </div>
+        </div>
+
+        <!-- XP SCORE -->
+        <div class="flex items-center gap-2 bg-slate-800/80 px-3 py-1.5 rounded-lg border border-slate-700 font-mono">
+          <i class="fa-solid fa-bolt text-yellow-400"></i>
+          <span id="xp-display" class="font-bold text-yellow-400">0</span>
+          <span class="text-xs text-slate-400">XP</span>
+        </div>
+
+        <!-- SOUND TOGGLE -->
+        <button id="sound-btn" onclick="toggleSound()" class="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition">
+          <i id="sound-icon" class="fa-solid fa-volume-high"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- PROGRESS BAR -->
+  <div class="w-full bg-slate-800 h-1.5">
+    <div id="progress-bar" class="bg-gradient-to-r from-cyan-500 to-indigo-500 h-1.5 w-0 transition-all duration-500"></div>
+  </div>
+
+  <!-- MAIN CONTAINER -->
+  <main class="max-w-4xl w-full mx-auto p-4 sm:p-6 my-auto">
+
+    <!-- START SCREEN -->
+    <div id="screen-start" class="text-center py-8">
+      <div class="inline-block p-4 rounded-2xl bg-cyan-500/10 border border-cyan-500/30 mb-4 animate-pulse-slow">
+        <i class="fa-solid fa-server text-5xl text-cyan-400"></i>
+      </div>
+      <h2 class="text-3xl sm:text-4xl font-extrabold text-white mb-3">
+        BẢO VỆ PIPELINE: <span class="text-cyan-400">NEW YORK TAXI</span>
+      </h2>
+      <p class="text-slate-400 max-w-xl mx-auto mb-6 text-sm sm:text-base leading-relaxed">
+        Bạn vừa nhận việc <b class="text-white">Data Engineer Intern</b> ngày đầu tiên. Hệ thống dữ liệu taxi 3 triệu chuyến đang gặp sự cố nghiêm trọng: tràn RAM, chia cho 0, trùng lặp bản ghi và đứt kết nối Docker!  
+        Vượt qua <b class="text-cyan-300">7 Ải Thử Thách</b> để giải cứu hệ thống và nhận chứng nhận thực tập sinh xuất sắc.
+      </p>
+
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 max-w-2xl mx-auto mb-8 text-left text-xs font-mono">
+        <div class="bg-slate-900 border border-slate-800 p-3 rounded-lg flex items-center gap-3">
+          <i class="fa-brands fa-docker text-blue-400 text-2xl"></i>
+          <div><div class="text-white font-bold">Docker Network</div><div class="text-slate-400">Sửa lỗi kết nối</div></div>
+        </div>
+        <div class="bg-slate-900 border border-slate-800 p-3 rounded-lg flex items-center gap-3">
+          <i class="fa-solid fa-database text-cyan-400 text-2xl"></i>
+          <div><div class="text-white font-bold">Advanced SQL</div><div class="text-slate-400">Window & Aggregates</div></div>
+        </div>
+        <div class="bg-slate-900 border border-slate-800 p-3 rounded-lg flex items-center gap-3">
+          <i class="fa-brands fa-aws text-orange-400 text-2xl"></i>
+          <div><div class="text-white font-bold">AWS DEA-C01</div><div class="text-slate-400">Kiến trúc Cloud DWH</div></div>
+        </div>
+      </div>
+
+      <button onclick="startGame()" class="px-8 py-3.5 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-bold rounded-xl text-base shadow-lg shadow-cyan-500/25 transition transform hover:-translate-y-0.5">
+        🚀 BẮT ĐẦU NHẬN NHIỆM VỤ
+      </button>
+    </div>
+
+    <!-- GAMEPLAY CARD SCREEN -->
+    <div id="screen-game" class="hidden">
+      <!-- MISSION BADGE -->
+      <div class="flex items-center justify-between mb-4">
+        <div class="flex items-center gap-2">
+          <span id="mission-badge" class="px-3 py-1 bg-cyan-950 border border-cyan-800 text-cyan-300 font-mono text-xs rounded-full font-bold">
+            ẢI 1 / 7
+          </span>
+          <span id="mission-topic" class="text-xs text-slate-400 font-mono">Docker Networking</span>
+        </div>
+        <button onclick="toggleCheatSheet()" class="text-xs text-cyan-400 hover:text-cyan-300 flex items-center gap-1 underline underline-offset-4">
+          <i class="fa-solid fa-book-bookmark"></i> Xem tài liệu bí kíp (Cheat Sheet)
+        </button>
+      </div>
+
+      <!-- MAIN QUESTION CARD -->
+      <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 sm:p-7 neon-border">
+        <!-- SCENARIO STORY -->
+        <div class="flex items-start gap-3 mb-4 p-3.5 bg-slate-950/70 rounded-xl border border-slate-800 text-sm">
+          <span class="text-xl">🚨</span>
+          <div>
+            <div class="text-xs font-bold text-red-400 uppercase tracking-wide">Tình huống khẩn cấp:</div>
+            <div id="mission-story" class="text-slate-300 mt-0.5"></div>
+          </div>
+        </div>
+
+        <!-- CODE SNIPPET / PUZZLE -->
+        <div class="mb-5">
+          <div class="text-xs text-slate-400 font-mono mb-2 flex items-center justify-between">
+            <span><i class="fa-solid fa-terminal mr-1"></i> CODE CẦN KHẮC PHỤC:</span>
+            <span class="text-slate-500 text-[11px]">Chọn đáp án chuẩn xác nhất</span>
+          </div>
+          <div class="relative bg-slate-950 rounded-xl p-4 border border-slate-800 text-sm overflow-x-auto">
+            <pre id="mission-code" class="text-emerald-400 font-mono leading-relaxed"></pre>
+          </div>
+        </div>
+
+        <!-- CHOICES -->
+        <div id="choices-container" class="grid grid-cols-1 gap-2.5 mb-5">
+          <!-- Dynamically inserted buttons -->
+        </div>
+
+        <!-- FEEDBACK BOX -->
+        <div id="feedback-box" class="hidden rounded-xl p-4 text-sm mb-4">
+          <div id="feedback-title" class="font-bold flex items-center gap-2 mb-1"></div>
+          <div id="feedback-desc" class="text-slate-300 leading-relaxed text-xs sm:text-sm"></div>
+        </div>
+
+        <!-- ACTION BUTTON -->
+        <div class="flex justify-end">
+          <button id="next-btn" onclick="nextMission()" class="hidden px-6 py-2.5 bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold rounded-xl text-sm transition flex items-center gap-2">
+            <span>ẢI TIẾP THEO</span>
+            <i class="fa-solid fa-arrow-right"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- GAME OVER SCREEN (LOST) -->
+    <div id="screen-gameover" class="hidden text-center py-10">
+      <div class="inline-block p-4 rounded-2xl bg-red-500/10 border border-red-500/30 mb-4 text-red-400 text-5xl">
+        <i class="fa-solid fa-skull"></i>
+      </div>
+      <h2 class="text-3xl font-bold text-white mb-2">HỆ THỐNG CRASHED!</h2>
+      <p class="text-slate-400 max-w-md mx-auto mb-6 text-sm">
+        Bạn đã hết số lượt sinh mệnh (HP). Đừng lo lắng, sai lầm trong môi trường test là cách nhanh nhất để trở thành Senior Data Engineer!
+      </p>
+      <button onclick="restartGame()" class="px-6 py-3 bg-red-600 hover:bg-red-500 text-white font-bold rounded-xl text-sm transition">
+        🔄 THỬ LẠI TỪ ĐẦU
+      </button>
+    </div>
+
+    <!-- VICTORY SCREEN (WON) -->
+    <div id="screen-victory" class="hidden text-center py-8">
+      <div class="inline-block p-4 rounded-2xl bg-yellow-500/10 border border-yellow-500/30 mb-4 text-yellow-400 text-5xl gold-glow">
+        <i class="fa-solid fa-trophy"></i>
+      </div>
+      <h2 class="text-3xl sm:text-4xl font-extrabold text-white mb-2">
+        🎉 XUẤT SẮC! GIẢI CỨU THÀNH CÔNG!
+      </h2>
+      <p class="text-slate-300 max-w-lg mx-auto mb-6 text-sm sm:text-base">
+        Bạn đã làm chủ hoàn toàn các kỹ năng: Docker Network, Xử lý dữ liệu bẩn, Window Functions và Kiến trúc AWS DWH!
+      </p>
+
+      <!-- CERTIFICATE BADGE -->
+      <div class="bg-gradient-to-b from-slate-900 to-slate-950 border border-yellow-500/40 rounded-2xl p-6 max-w-md mx-auto mb-8 shadow-xl text-left relative overflow-hidden">
+        <div class="absolute -right-8 -top-8 w-24 h-24 bg-yellow-500/10 rounded-full blur-xl"></div>
+        <div class="flex items-center gap-3 border-b border-slate-800 pb-3 mb-3">
+          <div class="w-10 h-10 rounded-full bg-yellow-500/20 flex items-center justify-center text-yellow-400 font-bold text-lg">
+            ★
+          </div>
+          <div>
+            <div class="text-xs text-yellow-400 font-mono font-bold tracking-wider uppercase">Chứng nhận thực chiến</div>
+            <div class="text-white font-bold text-sm">AWS Data Engineer Intern Candidate</div>
+          </div>
+        </div>
+        <div class="space-y-1.5 text-xs text-slate-300 font-mono">
+          <div class="flex justify-between"><span>Tổng điểm tích lũy:</span><b id="final-xp" class="text-yellow-400 font-bold">700 XP</b></div>
+          <div class="flex justify-between"><span>Độ chính xác kỹ thuật:</span><b id="final-accuracy" class="text-cyan-400">100%</b></div>
+          <div class="flex justify-between"><span>Đánh giá năng lực:</span><b class="text-emerald-400 font-bold">SẴN SÀNG PHỎNG VẤN</b></div>
+        </div>
+      </div>
+
+      <div class="flex flex-wrap justify-center gap-3">
+        <button onclick="restartGame()" class="px-6 py-2.5 bg-slate-800 hover:bg-slate-700 text-white font-bold rounded-xl text-sm transition">
+          🔄 Chơi lại ôn tập
+        </button>
+        <button onclick="shareResult()" class="px-6 py-2.5 bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold rounded-xl text-sm transition">
+          📋 Sao chép kết quả nộp bài
+        </button>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- CHEAT SHEET MODAL (BÍ KÍP NHANH) -->
+  <div id="modal-cheatsheet" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-2xl w-full p-6 max-h-[85vh] overflow-y-auto">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3 mb-4">
+        <h3 class="font-bold text-cyan-400 text-lg flex items-center gap-2">
+          <i class="fa-solid fa-bolt"></i> BÍ KÍP NHỚ NHANH (SQL & DOCKER CHEAT SHEET)
+        </h3>
+        <button onclick="toggleCheatSheet()" class="text-slate-400 hover:text-white text-xl">✕</button>
+      </div>
+      <div class="space-y-4 text-xs font-mono text-slate-300">
+        <div class="bg-slate-950 p-3 rounded-lg border border-slate-800">
+          <div class="text-cyan-300 font-bold mb-1">1. Docker pgAdmin kết nối Postgres</div>
+          <div class="text-slate-400">Host name: <span class="text-yellow-300">postgres</span> (tên container trong docker-compose, KHÔNG ĐƯỢC dùng localhost).</div>
+        </div>
+        <div class="bg-slate-950 p-3 rounded-lg border border-slate-800">
+          <div class="text-cyan-300 font-bold mb-1">2. Chống lỗi chia cho 0 (Division by Zero)</div>
+          <div class="text-slate-400">Dùng: <span class="text-yellow-300">NULLIF(fare_amount, 0)</span>. Nếu mẫu bằng 0 biến thành NULL, phép chia ra NULL chứ không crash.</div>
+        </div>
+        <div class="bg-slate-950 p-3 rounded-lg border border-slate-800">
+          <div class="text-cyan-300 font-bold mb-1">3. Khử trùng lặp dữ liệu (Deduplication)</div>
+          <div class="text-slate-400">Dùng: <span class="text-yellow-300">ROW_NUMBER() OVER (PARTITION BY id ORDER BY updated_at DESC) AS rn</span> rồi lọc <span class="text-yellow-300">WHERE rn = 1</span>.</div>
+        </div>
+        <div class="bg-slate-950 p-3 rounded-lg border border-slate-800">
+          <div class="text-cyan-300 font-bold mb-1">4. So sánh với chuyến trước / sau</div>
+          <div class="text-slate-400"><span class="text-yellow-300">LAG(col)</span>: Lấy dòng trước. <span class="text-yellow-300">LEAD(col)</span>: Lấy dòng sau.</div>
+        </div>
+        <div class="bg-slate-950 p-3 rounded-lg border border-slate-800">
+          <div class="text-cyan-300 font-bold mb-1">5. Xếp hạng Top N không bị nhảy số</div>
+          <div class="text-slate-400"><span class="text-yellow-300">DENSE_RANK()</span>: Đồng hạng 1, tiếp theo vẫn là hạng 2 (khác với RANK() sẽ nhảy lên hạng 3).</div>
+        </div>
+      </div>
+      <div class="mt-5 text-right">
+        <button onclick="toggleCheatSheet()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-lg text-xs font-bold">Đóng</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="border-t border-slate-800/80 py-3 text-center text-xs text-slate-500 font-mono">
+    Tuần 1: Docker, Ingestion Pipeline & Advanced SQL • Hướng tới AWS Certified Data Engineer (DEA-C01)
+  </footer>
+
+  <!-- JAVASCRIPT GAME ENGINE -->
+  <script>
+    // PROCEDURAL AUDIO SYNTHESIZER (NO EXTERNAL MP3 NEEDED)
+    let audioCtx = null;
+    let soundEnabled = true;
+
+    function initAudio() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+    }
+
+    function playSound(type) {
+      if (!soundEnabled) return;
+      initAudio();
+      try {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        const now = audioCtx.currentTime;
+
+        if (type === 'correct') {
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(523.25, now); // C5
+          osc.frequency.exponentialRampToValueAtTime(783.99, now + 0.15); // G5
+          gain.gain.setValueAtTime(0.15, now);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
+          osc.start(now);
+          osc.stop(now + 0.2);
+        } else if (type === 'wrong') {
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(220, now);
+          osc.frequency.linearRampToValueAtTime(110, now + 0.25);
+          gain.gain.setValueAtTime(0.2, now);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.25);
+          osc.start(now);
+          osc.stop(now + 0.25);
+        } else if (type === 'victory') {
+          const notes = [440, 554, 659, 880];
+          notes.forEach((freq, idx) => {
+            const o = audioCtx.createOscillator();
+            const g = audioCtx.createGain();
+            o.connect(g);
+            g.connect(audioCtx.destination);
+            o.frequency.value = freq;
+            g.gain.setValueAtTime(0.1, now + idx * 0.1);
+            g.gain.exponentialRampToValueAtTime(0.01, now + idx * 0.1 + 0.25);
+            o.start(now + idx * 0.1);
+            o.stop(now + idx * 0.1 + 0.25);
+          });
+        }
+      } catch (e) {
+        // Fallback silently if audio blocked
+      }
+    }
+
+    function toggleSound() {
+      soundEnabled = !soundEnabled;
+      const icon = document.getElementById('sound-icon');
+      if (soundEnabled) {
+        icon.className = 'fa-solid fa-volume-high';
+      } else {
+        icon.className = 'fa-solid fa-volume-xmark text-slate-500';
+      }
+    }
+
+    // GAME MISSIONS DATABASE
+    const missions = [
+      {
+        id: 1,
+        topic: "Docker Network DNS",
+        story: "Bạn vừa bật container PostgreSQL và pgAdmin qua docker-compose. Bạn mở pgAdmin trên web để kết nối database nhưng bị báo lỗi 'Connection Refused'! Tại sao?",
+        code: "-- Cấu hình trong tab Connection của pgAdmin:\nHost name/address: [  ???  ]\nPort: 5432\nDatabase: ny_taxi\nUsername: root",
+        choices: [
+          { text: "localhost", correct: false, note: "SAI! Trong Docker, 'localhost' của container pgAdmin chỉ trỏ về chính nó, không nhìn thấy container PostgreSQL." },
+          { text: "postgres", correct: true, note: "CHÍNH XÁC! Khi chung Docker Network, Docker tự cấp DNS nội bộ: ta dùng tên service 'postgres' để kết nối." },
+          { text: "127.0.0.1", correct: false, note: "SAI! 127.0.0.1 cũng tương đương với localhost nội tại của container pgAdmin." },
+          { text: "docker-daemon", correct: false, note: "SAI! Đây không phải là tên service đã khai báo trong docker-compose.yaml." }
+        ]
+      },
+      {
+        id: 2,
+        topic: "Clean Data & Chống lỗi sập Pipeline",
+        story: "Pipeline tính tỷ lệ tiền Tip (% Tip = tip_amount / fare_amount) bị sập giữa chừng với mã lỗi 'Division by zero' vì có các chuyến đi miễn phí (fare_amount = 0). Cần sửa thế nào?",
+        code: "SELECT \n    ROUND( (tip_amount / [ ??? ] * 100)::numeric, 2) AS tip_pct\nFROM yellow_taxi_trips;",
+        choices: [
+          { text: "COALESCE(fare_amount, 0)", correct: false, note: "SAI! Nếu fare_amount = 0 thì nó vẫn giữ nguyên là 0, phép chia cho 0 vẫn làm sập câu lệnh!" },
+          { text: "NULLIF(fare_amount, 0)", correct: true, note: "CHÍNH XÁC! NULLIF biến số 0 thành NULL. Số chia cho NULL sẽ ra NULL thay vì báo lỗi đỏ sập hệ thống." },
+          { text: "ABS(fare_amount)", correct: false, note: "SAI! ABS chỉ lấy giá trị tuyệt đối, ABS(0) vẫn bằng 0." },
+          { text: "ISNULL(fare_amount, 1)", correct: false, note: "SAI! Nếu fare_amount = 0 thì không phải NULL, nó không biến thành 1 được." }
+        ]
+      },
+      {
+        id: 3,
+        topic: "Window Function - Khử trùng lặp (Deduplication)",
+        story: "Do lỗi mạng, một số chuyến xe bị nạp trùng nhiều lần vào Database. Trưởng nhóm yêu cầu bạn viết query chỉ giữ lại 1 bản ghi duy nhất cho mỗi chuyến đi. Dùng hàm nào?",
+        code: "WITH ranked AS (\n    SELECT *,\n        [ ??? ] OVER (\n            PARTITION BY trip_id \n            ORDER BY tpep_pickup_datetime DESC\n        ) AS rn\n    FROM yellow_taxi_trips\n)\nSELECT * FROM ranked WHERE rn = 1;",
+        choices: [
+          { text: "DENSE_RANK()", correct: false, note: "CHƯA TỐI ƯU! Nếu 2 bản ghi trùng cả thời gian, DENSE_RANK() sẽ cho đồng hạng 1, dẫn đến kết quả vẫn còn bản ghi trùng." },
+          { text: "ROW_NUMBER()", correct: true, note: "CHUẨN SENIOR! ROW_NUMBER() luôn sinh số nguyên 1, 2, 3 liên tục duy nhất, đảm bảo WHERE rn = 1 chỉ lấy đúng 1 bản ghi!" },
+          { text: "COUNT(*)", correct: false, note: "SAI! COUNT(*) chỉ đếm tổng số, không dùng để xếp thứ tự đánh chỉ mục dòng." },
+          { text: "LAG()", correct: false, note: "SAI! LAG() dùng để lấy giá trị của dòng trước, không tạo số thứ tự để lọc bản ghi." }
+        ]
+      },
+      {
+        id: 4,
+        topic: "Window Function - Tính thời gian chờ (Fleet Idle Time)",
+        story: "Trưởng điều hành sân bay JFK muốn biết: 'Mỗi chiếc taxi đón khách cách chuyến đón khách liền trước đó bao nhiêu phút?' Bạn dùng hàm gì để nhìn lại dòng phía trước?",
+        code: "SELECT \n    tpep_pickup_datetime,\n    [ ??? ](tpep_pickup_datetime) OVER (\n        PARTITION BY \"PULocationID\"\n        ORDER BY tpep_pickup_datetime ASC\n    ) AS previous_pickup_time\nFROM yellow_taxi_trips;",
+        choices: [
+          { text: "LEAD", correct: false, note: "SAI! LEAD() nhìn về dòng TƯƠNG LAI (dòng phía dưới), không nhìn về quá khứ." },
+          { text: "LAG", correct: true, note: "XUẤT SẮC! LAG() cho phép lấy giá trị của dòng nằm ngay trước nó theo thứ tự ORDER BY." },
+          { text: "FIRST_VALUE", correct: false, note: "SAI! FIRST_VALUE chỉ lấy giá trị của dòng đầu tiên của cả bảng/nhóm, không phải dòng liền trước." },
+          { text: "PREVIOUS", correct: false, note: "SAI! Trong chuẩn SQL không có hàm tên là PREVIOUS." }
+        ]
+      },
+      {
+        id: 5,
+        topic: "Window Function - Top N không nhảy cóc thứ hạng",
+        story: "Bạn cần tìm Top 3 địa điểm đón khách doanh thu cao nhất. Nếu có 2 địa điểm đồng hạng 1 (cùng doanh thu $10,000), bạn muốn địa điểm tiếp theo xếp hạng 2 (chứ không phải hạng 3). Dùng hàm gì?",
+        code: "SELECT \n    location_id,\n    revenue,\n    [ ??? ] OVER (ORDER BY revenue DESC) AS rank_pos\nFROM daily_summary;",
+        choices: [
+          { text: "RANK()", correct: false, note: "SAI! RANK() sẽ xếp thứ tự là: 1, 1, 3 (nhảy cóc mất vị trí số 2)." },
+          { text: "ROW_NUMBER()", correct: false, note: "SAI! ROW_NUMBER() sẽ ép 1 chỗ là hạng 1, chỗ kia là hạng 2 dù doanh thu bằng nhau hoàn toàn." },
+          { text: "DENSE_RANK()", correct: true, note: "CHÍNH XÁC! 'DENSE' có nghĩa là đặc, liền mạch: 1, 1, 2, 3 (không nhảy cóc thứ hạng)." },
+          { text: "NTILE(3)", correct: false, note: "SAI! NTILE(3) chia dữ liệu thành 3 xô đều nhau, không phải xếp thứ hạng Top N." }
+        ]
+      },
+      {
+        id: 6,
+        topic: "Data Warehouse - Date Truncation",
+        story: "Giám đốc tài chính muốn tổng hợp doanh thu theo từng ngày. Timestamp lưu dạng: '2023-01-15 14:35:28'. Làm sao để đưa toàn bộ chuyến trong ngày về mốc '2023-01-15 00:00:00' để GROUP BY?",
+        code: "SELECT \n    [ ??? ]('day', tpep_pickup_datetime) AS trip_day,\n    SUM(total_amount) AS revenue\nFROM yellow_taxi_trips\nGROUP BY 1;",
+        choices: [
+          { text: "EXTRACT", correct: false, note: "SAI! EXTRACT('day', ...) chỉ trả về con số ngày trong tháng (ví dụ số 15), làm mất thông tin tháng và năm!" },
+          { text: "DATE_TRUNC", correct: true, note: "CHUẨN XÁC! DATE_TRUNC('day', timestamp) cắt gọn phần giờ/phút/giây về 00:00:00 của ngày đó. Đây là hàm vàng trong Data Warehouse." },
+          { text: "ROUND", correct: false, note: "SAI! ROUND() chỉ dùng cho kiểu số thực (float/numeric)." },
+          { text: "TRIM", correct: false, note: "SAI! TRIM() dùng để cắt khoảng trắng của chuỗi văn bản (string)." }
+        ]
+      },
+      {
+        id: 7,
+        topic: "AWS Certified Data Engineer (DEA-C01) Scenario",
+        story: "Ứng dụng gọi xe cần tra cứu thông tin chi tiết của 1 chuyến xe trong vòng 5 mili-giây theo mã chuyến đi, đồng thời ghi nhận 1,000 giao dịch mới mỗi giây (yêu cầu ACID). Theo chuẩn AWS, chọn dịch vụ nào?",
+        code: "-- Yêu cầu: High IOPS, Single-row lookup < 10ms, ACID compliance.\n-- Dịch vụ tối ưu nhất là gì?",
+        choices: [
+          { text: "Amazon Athena trên file Parquet tại S3", correct: false, note: "SAI! Athena là công cụ Serverless OLAP, độ trễ mỗi câu truy vấn mất 1-3 giây, không thích hợp cho tra cứu mili-giây." },
+          { text: "Amazon Redshift Provisioned Cluster", correct: false, note: "SAI! Redshift là Data Warehouse cột (Columnar), tối ưu cho quét hàng triệu dòng, ghi từng dòng đơn lẻ rất chậm và tốn tài nguyên." },
+          { text: "Amazon Aurora PostgreSQL (hoặc Amazon RDS)", correct: true, note: "XUẤT SẮC! ĐÂY LÀ ĐÁP ÁN ĐỀ THI AWS DEA-C01! RDS/Aurora là hệ quản trị OLTP hướng dòng, hỗ trợ index B-Tree tra cứu cực nhanh dưới 10ms và đảm bảo ACID." },
+          { text: "AWS Glue Crawler", correct: false, note: "SAI! Glue Crawler chỉ là công cụ quét metadata tạo Schema Catalog, không phải database lưu trữ." }
+        ]
+      }
+    ];
+
+    let currentMissionIndex = 0;
+    let lives = 3;
+    let xp = 0;
+    let correctAnswersCount = 0;
+    let answered = false;
+
+    function startGame() {
+      initAudio();
+      document.getElementById('screen-start').classList.add('hidden');
+      document.getElementById('screen-game').classList.remove('hidden');
+      currentMissionIndex = 0;
+      lives = 3;
+      xp = 0;
+      correctAnswersCount = 0;
+      updateHeader();
+      renderMission();
+    }
+
+    function updateHeader() {
+      document.getElementById('xp-display').innerText = xp;
+      const livesContainer = document.getElementById('lives-container');
+      livesContainer.innerHTML = '';
+      for (let i = 0; i < 3; i++) {
+        if (i < lives) {
+          livesContainer.innerHTML += '<i class="fa-solid fa-heart text-red-500"></i>';
+        } else {
+          livesContainer.innerHTML += '<i class="fa-regular fa-heart text-slate-600"></i>';
+        }
+      }
+      const progressPercent = (currentMissionIndex / missions.length) * 100;
+      document.getElementById('progress-bar').style.width = `${progressPercent}%`;
+    }
+
+    function renderMission() {
+      answered = false;
+      const m = missions[currentMissionIndex];
+
+      document.getElementById('mission-badge').innerText = `ẢI ${currentMissionIndex + 1} / ${missions.length}`;
+      document.getElementById('mission-topic').innerText = m.topic;
+      document.getElementById('mission-story').innerText = m.story;
+      document.getElementById('mission-code').innerText = m.code;
+
+      const choicesContainer = document.getElementById('choices-container');
+      choicesContainer.innerHTML = '';
+
+      m.choices.forEach((choice, idx) => {
+        const btn = document.createElement('button');
+        btn.className = "w-full text-left p-3.5 rounded-xl border border-slate-800 bg-slate-950/70 hover:bg-slate-800/80 hover:border-cyan-500/50 text-slate-200 text-xs sm:text-sm font-mono flex items-center justify-between transition group";
+        btn.innerHTML = `
+          <span><b class="text-cyan-400 mr-2">[${String.fromCharCode(65 + idx)}]</b> ${escapeHtml(choice.text)}</span>
+          <i class="fa-solid fa-chevron-right text-slate-600 group-hover:text-cyan-400 transition"></i>
+        `;
+        btn.onclick = () => selectChoice(idx, btn);
+        choicesContainer.appendChild(btn);
+      });
+
+      document.getElementById('feedback-box').className = 'hidden';
+      document.getElementById('next-btn').classList.add('hidden');
+    }
+
+    function selectChoice(index, buttonEl) {
+      if (answered) return;
+      answered = true;
+
+      const m = missions[currentMissionIndex];
+      const selected = m.choices[index];
+      const allButtons = document.querySelectorAll('#choices-container button');
+
+      allButtons.forEach(b => b.disabled = true);
+
+      const feedbackBox = document.getElementById('feedback-box');
+      const feedbackTitle = document.getElementById('feedback-title');
+      const feedbackDesc = document.getElementById('feedback-desc');
+
+      feedbackBox.classList.remove('hidden');
+
+      if (selected.correct) {
+        playSound('correct');
+        xp += 100;
+        correctAnswersCount++;
+        buttonEl.classList.remove('border-slate-800', 'bg-slate-950/70');
+        buttonEl.classList.add('border-emerald-500', 'bg-emerald-950/40', 'text-emerald-300');
+
+        feedbackBox.className = 'rounded-xl p-4 text-sm mb-4 bg-emerald-950/50 border border-emerald-500/40 text-emerald-300';
+        feedbackTitle.innerHTML = '<i class="fa-solid fa-circle-check text-emerald-400"></i> CHÍNH XÁC! (+100 XP)';
+        feedbackDesc.innerText = selected.note;
+      } else {
+        playSound('wrong');
+        lives--;
+        buttonEl.classList.remove('border-slate-800', 'bg-slate-950/70');
+        buttonEl.classList.add('border-red-500', 'bg-red-950/40', 'text-red-300');
+
+        feedbackBox.className = 'rounded-xl p-4 text-sm mb-4 bg-red-950/50 border border-red-500/40 text-red-300';
+        feedbackTitle.innerHTML = '<i class="fa-solid fa-triangle-exclamation text-red-400"></i> CHƯA CHÍNH XÁC! (-1 HP)';
+        feedbackDesc.innerText = selected.note;
+
+        // Highlight the true answer
+        m.choices.forEach((c, i) => {
+          if (c.correct) {
+            allButtons[i].classList.add('border-emerald-500/60', 'bg-emerald-950/20', 'text-emerald-300');
+          }
+        });
+      }
+
+      updateHeader();
+
+      if (lives <= 0) {
+        setTimeout(showGameOver, 1200);
+      } else {
+        document.getElementById('next-btn').classList.remove('hidden');
+      }
+    }
+
+    function nextMission() {
+      currentMissionIndex++;
+      if (currentMissionIndex < missions.length) {
+        renderMission();
+      } else {
+        showVictory();
+      }
+    }
+
+    function showGameOver() {
+      document.getElementById('screen-game').classList.add('hidden');
+      document.getElementById('screen-gameover').classList.remove('hidden');
+    }
+
+    function showVictory() {
+      playSound('victory');
+      document.getElementById('screen-game').classList.add('hidden');
+      document.getElementById('screen-victory').classList.remove('hidden');
+      document.getElementById('progress-bar').style.width = '100%';
+      document.getElementById('final-xp').innerText = `${xp} XP`;
+      const accuracy = Math.round((correctAnswersCount / missions.length) * 100);
+      document.getElementById('final-accuracy').innerText = `${accuracy}%`;
+    }
+
+    function restartGame() {
+      document.getElementById('screen-gameover').classList.add('hidden');
+      document.getElementById('screen-victory').classList.add('hidden');
+      startGame();
+    }
+
+    function toggleCheatSheet() {
+      const modal = document.getElementById('modal-cheatsheet');
+      modal.classList.toggle('hidden');
+    }
+
+    function shareResult() {
+      const text = `🏆 Tôi vừa hoàn thành Thử thách "Data Rescue: NYC Arena (Week 1)" với ${xp} XP! Nắm vững Docker, Window Functions và AWS Cloud DWH!`;
+      navigator.clipboard.writeText(text).then(() => {
+        alert("Đã sao chép kết quả vào Clipboard! Bạn có thể dán vào bài viết hoặc README làm minh chứng.");
+      });
+    }
+
+    function escapeHtml(str) {
+      return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    }
+  </script>
+</body>
+</html>
