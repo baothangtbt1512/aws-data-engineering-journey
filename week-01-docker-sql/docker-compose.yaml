@@ -1,0 +1,73 @@
+version: '3.8'
+
+services:
+  # Service 1: PostgreSQL Database (Target DWH / OLTP)
+  postgres:
+    image: postgres:15-alpine
+    container_name: postgres_db
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=root
+      - POSTGRES_PASSWORD=root
+      - POSTGRES_DB=ny_taxi
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - taxi-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U root -d ny_taxi"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Service 2: pgAdmin Web UI
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: pgadmin_ui
+    restart: unless-stopped
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=admin@admin.com
+      - PGADMIN_DEFAULT_PASSWORD=root
+    ports:
+      - "8080:80"
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin
+    networks:
+      - taxi-network
+    depends_on:
+      - postgres
+
+  # Service 3: Python Data Ingestion Pipeline
+  ingest:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: data_ingestion_pipeline
+    networks:
+      - taxi-network
+    volumes:
+      - ./data:/app/data
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command: >
+      --user=root
+      --password=root
+      --host=postgres
+      --port=5432
+      --db=ny_taxi
+      --table_name=yellow_taxi_trips
+      --url=https://d37ci6vzurychx.cloudfront.net/trip-data/yellow_tripdata_2023-01.parquet
+      --batch_size=100000
+    profiles:
+      - ingest
+
+volumes:
+  pgdata:
+  pgadmin-data:
+
+networks:
+  taxi-network:
+    driver: bridge
