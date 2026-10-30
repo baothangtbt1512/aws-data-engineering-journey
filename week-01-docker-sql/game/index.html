@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Data Rescue: NYC Taxi Arena - SQL & DE Game</title>
+  <title>Data Rescue: 30 Challenges - SQL & Data Engineer Arena</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
@@ -11,20 +11,17 @@
     
     body {
       font-family: 'Inter', sans-serif;
-      background-color: #0b0f19;
+      background-color: #080c14;
       color: #e2e8f0;
     }
     code, pre, .font-mono {
       font-family: 'Fira Code', monospace;
     }
     .neon-border {
-      box-shadow: 0 0 15px rgba(56, 189, 248, 0.25), inset 0 0 15px rgba(56, 189, 248, 0.1);
-    }
-    .neon-text {
-      text-shadow: 0 0 8px rgba(56, 189, 248, 0.6);
+      box-shadow: 0 0 15px rgba(56, 189, 248, 0.2), inset 0 0 15px rgba(56, 189, 248, 0.05);
     }
     .gold-glow {
-      box-shadow: 0 0 20px rgba(250, 204, 21, 0.3);
+      box-shadow: 0 0 25px rgba(250, 204, 21, 0.35);
     }
     @keyframes pulse-subtle {
       0%, 100% { opacity: 1; transform: scale(1); }
@@ -38,33 +35,37 @@
 <body class="min-h-screen flex flex-col justify-between selection:bg-cyan-500 selection:text-black">
 
   <!-- TOP HEADER / STATUS BAR -->
-  <header class="border-b border-slate-800 bg-slate-900/80 backdrop-blur sticky top-0 z-50 px-4 py-3">
+  <header class="border-b border-slate-800 bg-slate-900/90 backdrop-blur sticky top-0 z-50 px-4 py-3">
     <div class="max-w-5xl mx-auto flex items-center justify-between">
       <div class="flex items-center space-x-3">
-        <span class="text-2xl">🚖</span>
+        <span class="text-2xl animate-bounce">🚖</span>
         <div>
-          <h1 class="text-lg font-bold text-cyan-400 tracking-wider flex items-center gap-2">
+          <h1 class="text-base sm:text-lg font-bold text-cyan-400 tracking-wider flex items-center gap-2">
             DATA RESCUE: NYC ARENA
-            <span class="text-xs bg-cyan-950 text-cyan-300 border border-cyan-800 px-2 py-0.5 rounded-full font-mono">Week 1 Edition</span>
+            <span class="text-[11px] bg-cyan-950 text-cyan-300 border border-cyan-800 px-2 py-0.5 rounded-full font-mono">30 Boss Quests</span>
           </h1>
-          <p class="text-xs text-slate-400">AWS Data Engineer Intern Simulation</p>
+          <p class="text-xs text-slate-400">AWS Data Engineer Associate (DEA-C01) & Intern Bootcamp</p>
         </div>
       </div>
 
       <!-- GAME STATS -->
-      <div class="flex items-center gap-4">
+      <div class="flex items-center gap-2 sm:gap-4">
+        <!-- COMBO STREAK -->
+        <div id="streak-badge" class="hidden sm:flex items-center gap-1 bg-amber-950/60 border border-amber-600/50 px-2.5 py-1 rounded-lg text-amber-300 font-mono text-xs">
+          <i class="fa-solid fa-fire text-amber-400 animate-pulse"></i>
+          <span>Streak: <b id="streak-count">0</b></span>
+        </div>
+
         <!-- LIVES -->
-        <div class="flex items-center gap-1 bg-slate-800/80 px-3 py-1.5 rounded-lg border border-slate-700">
+        <div class="flex items-center gap-1 bg-slate-800/90 px-3 py-1.5 rounded-lg border border-slate-700">
           <span class="text-xs text-slate-400 font-bold mr-1">HP:</span>
           <div id="lives-container" class="flex gap-1 text-red-500 text-sm">
-            <i class="fa-solid fa-heart"></i>
-            <i class="fa-solid fa-heart"></i>
-            <i class="fa-solid fa-heart"></i>
+            <!-- 5 Hearts -->
           </div>
         </div>
 
         <!-- XP SCORE -->
-        <div class="flex items-center gap-2 bg-slate-800/80 px-3 py-1.5 rounded-lg border border-slate-700 font-mono">
+        <div class="flex items-center gap-1.5 bg-slate-800/90 px-3 py-1.5 rounded-lg border border-slate-700 font-mono text-xs sm:text-sm">
           <i class="fa-solid fa-bolt text-yellow-400"></i>
           <span id="xp-display" class="font-bold text-yellow-400">0</span>
           <span class="text-xs text-slate-400">XP</span>
@@ -80,96 +81,114 @@
 
   <!-- PROGRESS BAR -->
   <div class="w-full bg-slate-800 h-1.5">
-    <div id="progress-bar" class="bg-gradient-to-r from-cyan-500 to-indigo-500 h-1.5 w-0 transition-all duration-500"></div>
+    <div id="progress-bar" class="bg-gradient-to-r from-cyan-500 via-blue-500 to-emerald-400 h-1.5 w-0 transition-all duration-300"></div>
   </div>
 
   <!-- MAIN CONTAINER -->
   <main class="max-w-4xl w-full mx-auto p-4 sm:p-6 my-auto">
 
     <!-- START SCREEN -->
-    <div id="screen-start" class="text-center py-8">
+    <div id="screen-start" class="text-center py-6">
       <div class="inline-block p-4 rounded-2xl bg-cyan-500/10 border border-cyan-500/30 mb-4 animate-pulse-slow">
-        <i class="fa-solid fa-server text-5xl text-cyan-400"></i>
+        <i class="fa-solid fa-database text-5xl text-cyan-400"></i>
       </div>
-      <h2 class="text-3xl sm:text-4xl font-extrabold text-white mb-3">
-        BẢO VỆ PIPELINE: <span class="text-cyan-400">NEW YORK TAXI</span>
+      <h2 class="text-3xl sm:text-4xl font-extrabold text-white mb-2">
+        30 THỬ THÁCH: <span class="text-cyan-400">DATA ENGINEER ARENA</span>
       </h2>
       <p class="text-slate-400 max-w-xl mx-auto mb-6 text-sm sm:text-base leading-relaxed">
-        Bạn vừa nhận việc <b class="text-white">Data Engineer Intern</b> ngày đầu tiên. Hệ thống dữ liệu taxi 3 triệu chuyến đang gặp sự cố nghiêm trọng: tràn RAM, chia cho 0, trùng lặp bản ghi và đứt kết nối Docker!  
-        Vượt qua <b class="text-cyan-300">7 Ải Thử Thách</b> để giải cứu hệ thống và nhận chứng nhận thực tập sinh xuất sắc.
+        Bộ câu hỏi thực chiến chuẩn <b>Data Engineering Zoomcamp + AWS DEA-C01</b> bao gồm 6 chương: 
+        Docker, Xử lý dữ liệu bẩn, Window Functions, Tối ưu Indexing, Ingestion Pipeline và Kiến trúc AWS Cloud.
       </p>
 
-      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 max-w-2xl mx-auto mb-8 text-left text-xs font-mono">
-        <div class="bg-slate-900 border border-slate-800 p-3 rounded-lg flex items-center gap-3">
-          <i class="fa-brands fa-docker text-blue-400 text-2xl"></i>
-          <div><div class="text-white font-bold">Docker Network</div><div class="text-slate-400">Sửa lỗi kết nối</div></div>
+      <!-- CHAPTERS PREVIEW -->
+      <div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5 max-w-2xl mx-auto mb-6 text-left text-xs font-mono">
+        <div class="bg-slate-900 border border-slate-800 p-2.5 rounded-lg">
+          <div class="text-cyan-400 font-bold">Chương 1 (1-6)</div>
+          <div class="text-slate-400">Docker & Network</div>
         </div>
-        <div class="bg-slate-900 border border-slate-800 p-3 rounded-lg flex items-center gap-3">
-          <i class="fa-solid fa-database text-cyan-400 text-2xl"></i>
-          <div><div class="text-white font-bold">Advanced SQL</div><div class="text-slate-400">Window & Aggregates</div></div>
+        <div class="bg-slate-900 border border-slate-800 p-2.5 rounded-lg">
+          <div class="text-emerald-400 font-bold">Chương 2 (7-13)</div>
+          <div class="text-slate-400">Data Cleaning & Dates</div>
         </div>
-        <div class="bg-slate-900 border border-slate-800 p-3 rounded-lg flex items-center gap-3">
-          <i class="fa-brands fa-aws text-orange-400 text-2xl"></i>
-          <div><div class="text-white font-bold">AWS DEA-C01</div><div class="text-slate-400">Kiến trúc Cloud DWH</div></div>
+        <div class="bg-slate-900 border border-slate-800 p-2.5 rounded-lg">
+          <div class="text-purple-400 font-bold">Chương 3 (14-21)</div>
+          <div class="text-slate-400">Window Functions</div>
         </div>
+        <div class="bg-slate-900 border border-slate-800 p-2.5 rounded-lg">
+          <div class="text-yellow-400 font-bold">Chương 4 (22-25)</div>
+          <div class="text-slate-400">CTEs & Indexing</div>
+        </div>
+        <div class="bg-slate-900 border border-slate-800 p-2.5 rounded-lg">
+          <div class="text-pink-400 font-bold">Chương 5 (26-27)</div>
+          <div class="text-slate-400">Pipeline Ingestion</div>
+        </div>
+        <div class="bg-slate-900 border border-slate-800 p-2.5 rounded-lg">
+          <div class="text-orange-400 font-bold">Chương 6 (28-30)</div>
+          <div class="text-slate-400">AWS Cloud DEA-C01</div>
+        </div>
+      </div>
+
+      <div class="bg-slate-900/60 border border-slate-800 rounded-xl p-3 max-w-md mx-auto mb-6 text-xs text-slate-400">
+        💡 <b class="text-white">Quy tắc sinh mệnh:</b> Khởi đầu với <b>5 HP</b>. Trả lời đúng liên tiếp <b>5 câu</b> sẽ được hồi lại <b>+1 HP</b>!
       </div>
 
       <button onclick="startGame()" class="px-8 py-3.5 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-bold rounded-xl text-base shadow-lg shadow-cyan-500/25 transition transform hover:-translate-y-0.5">
-        🚀 BẮT ĐẦU NHẬN NHIỆM VỤ
+        🚀 BẮT ĐẦU VƯỢT 30 ẢI (START GAME)
       </button>
     </div>
 
     <!-- GAMEPLAY CARD SCREEN -->
     <div id="screen-game" class="hidden">
       <!-- MISSION BADGE -->
-      <div class="flex items-center justify-between mb-4">
+      <div class="flex items-center justify-between mb-3">
         <div class="flex items-center gap-2">
           <span id="mission-badge" class="px-3 py-1 bg-cyan-950 border border-cyan-800 text-cyan-300 font-mono text-xs rounded-full font-bold">
-            ẢI 1 / 7
+            ẢI 1 / 30
           </span>
-          <span id="mission-topic" class="text-xs text-slate-400 font-mono">Docker Networking</span>
+          <span id="mission-chapter" class="text-xs bg-slate-800 text-slate-300 border border-slate-700 px-2.5 py-0.5 rounded-full font-mono">Chương 1</span>
+          <span id="mission-topic" class="text-xs text-slate-400 font-mono hidden sm:inline">Docker Network DNS</span>
         </div>
         <button onclick="toggleCheatSheet()" class="text-xs text-cyan-400 hover:text-cyan-300 flex items-center gap-1 underline underline-offset-4">
-          <i class="fa-solid fa-book-bookmark"></i> Xem tài liệu bí kíp (Cheat Sheet)
+          <i class="fa-solid fa-book-bookmark"></i> Bí kíp (Cheat Sheet)
         </button>
       </div>
 
       <!-- MAIN QUESTION CARD -->
-      <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 sm:p-7 neon-border">
+      <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 sm:p-6 neon-border">
         <!-- SCENARIO STORY -->
         <div class="flex items-start gap-3 mb-4 p-3.5 bg-slate-950/70 rounded-xl border border-slate-800 text-sm">
           <span class="text-xl">🚨</span>
           <div>
-            <div class="text-xs font-bold text-red-400 uppercase tracking-wide">Tình huống khẩn cấp:</div>
-            <div id="mission-story" class="text-slate-300 mt-0.5"></div>
+            <div class="text-xs font-bold text-red-400 uppercase tracking-wide">Tình huống kỹ thuật:</div>
+            <div id="mission-story" class="text-slate-300 mt-0.5 text-xs sm:text-sm leading-relaxed"></div>
           </div>
         </div>
 
         <!-- CODE SNIPPET / PUZZLE -->
-        <div class="mb-5">
+        <div class="mb-4">
           <div class="text-xs text-slate-400 font-mono mb-2 flex items-center justify-between">
-            <span><i class="fa-solid fa-terminal mr-1"></i> CODE CẦN KHẮC PHỤC:</span>
-            <span class="text-slate-500 text-[11px]">Chọn đáp án chuẩn xác nhất</span>
+            <span><i class="fa-solid fa-terminal mr-1"></i> CODE / TRUY VẤN CẦN GIẢI QUYẾT:</span>
           </div>
-          <div class="relative bg-slate-950 rounded-xl p-4 border border-slate-800 text-sm overflow-x-auto">
-            <pre id="mission-code" class="text-emerald-400 font-mono leading-relaxed"></pre>
+          <div class="relative bg-slate-950 rounded-xl p-4 border border-slate-800 text-xs sm:text-sm overflow-x-auto">
+            <pre id="mission-code" class="text-emerald-400 font-mono leading-relaxed whitespace-pre-wrap"></pre>
           </div>
         </div>
 
         <!-- CHOICES -->
-        <div id="choices-container" class="grid grid-cols-1 gap-2.5 mb-5">
+        <div id="choices-container" class="grid grid-cols-1 gap-2.5 mb-4">
           <!-- Dynamically inserted buttons -->
         </div>
 
         <!-- FEEDBACK BOX -->
-        <div id="feedback-box" class="hidden rounded-xl p-4 text-sm mb-4">
+        <div id="feedback-box" class="hidden rounded-xl p-4 text-xs sm:text-sm mb-4">
           <div id="feedback-title" class="font-bold flex items-center gap-2 mb-1"></div>
-          <div id="feedback-desc" class="text-slate-300 leading-relaxed text-xs sm:text-sm"></div>
+          <div id="feedback-desc" class="text-slate-300 leading-relaxed"></div>
         </div>
 
         <!-- ACTION BUTTON -->
-        <div class="flex justify-end">
-          <button id="next-btn" onclick="nextMission()" class="hidden px-6 py-2.5 bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold rounded-xl text-sm transition flex items-center gap-2">
+        <div class="flex justify-between items-center">
+          <span id="streak-bonus-msg" class="text-xs text-amber-400 font-mono hidden"></span>
+          <button id="next-btn" onclick="nextMission()" class="ml-auto px-6 py-2.5 bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold rounded-xl text-sm transition flex items-center gap-2">
             <span>ẢI TIẾP THEO</span>
             <i class="fa-solid fa-arrow-right"></i>
           </button>
@@ -182,52 +201,52 @@
       <div class="inline-block p-4 rounded-2xl bg-red-500/10 border border-red-500/30 mb-4 text-red-400 text-5xl">
         <i class="fa-solid fa-skull"></i>
       </div>
-      <h2 class="text-3xl font-bold text-white mb-2">HỆ THỐNG CRASHED!</h2>
+      <h2 class="text-3xl font-bold text-white mb-2">HẾT SINH MỆNH (GAME OVER)</h2>
       <p class="text-slate-400 max-w-md mx-auto mb-6 text-sm">
-        Bạn đã hết số lượt sinh mệnh (HP). Đừng lo lắng, sai lầm trong môi trường test là cách nhanh nhất để trở thành Senior Data Engineer!
+        Bạn đã dừng chân tại <b id="gameover-at" class="text-cyan-400">Ải 0</b>. Hãy đọc lại phần giải thích chi tiết trong Bí kíp và thử sức lại nhé!
       </p>
       <button onclick="restartGame()" class="px-6 py-3 bg-red-600 hover:bg-red-500 text-white font-bold rounded-xl text-sm transition">
         🔄 THỬ LẠI TỪ ĐẦU
       </button>
     </div>
 
-    <!-- VICTORY SCREEN (WON) -->
-    <div id="screen-victory" class="hidden text-center py-8">
-      <div class="inline-block p-4 rounded-2xl bg-yellow-500/10 border border-yellow-500/30 mb-4 text-yellow-400 text-5xl gold-glow">
-        <i class="fa-solid fa-trophy"></i>
+    <!-- VICTORY SCREEN (WON ALL 30) -->
+    <div id="screen-victory" class="hidden text-center py-6">
+      <div class="inline-block p-4 rounded-2xl bg-yellow-500/10 border border-yellow-500/30 mb-3 text-yellow-400 text-5xl gold-glow">
+        <i class="fa-solid fa-crown"></i>
       </div>
       <h2 class="text-3xl sm:text-4xl font-extrabold text-white mb-2">
-        🎉 XUẤT SẮC! GIẢI CỨU THÀNH CÔNG!
+        🏆 ĐẠI THẮNG 30/30 ẢI!
       </h2>
-      <p class="text-slate-300 max-w-lg mx-auto mb-6 text-sm sm:text-base">
-        Bạn đã làm chủ hoàn toàn các kỹ năng: Docker Network, Xử lý dữ liệu bẩn, Window Functions và Kiến trúc AWS DWH!
+      <p class="text-slate-300 max-w-lg mx-auto mb-5 text-sm sm:text-base">
+        Tuyệt đỉnh! Bạn đã hoàn thành trọn vẹn toàn bộ 30 tình huống thực chiến của kỹ sư dữ liệu!
       </p>
 
       <!-- CERTIFICATE BADGE -->
-      <div class="bg-gradient-to-b from-slate-900 to-slate-950 border border-yellow-500/40 rounded-2xl p-6 max-w-md mx-auto mb-8 shadow-xl text-left relative overflow-hidden">
-        <div class="absolute -right-8 -top-8 w-24 h-24 bg-yellow-500/10 rounded-full blur-xl"></div>
+      <div class="bg-gradient-to-b from-slate-900 to-slate-950 border border-yellow-500/50 rounded-2xl p-6 max-w-md mx-auto mb-6 shadow-2xl text-left relative overflow-hidden">
         <div class="flex items-center gap-3 border-b border-slate-800 pb-3 mb-3">
-          <div class="w-10 h-10 rounded-full bg-yellow-500/20 flex items-center justify-center text-yellow-400 font-bold text-lg">
-            ★
+          <div class="w-12 h-12 rounded-full bg-yellow-500/20 flex items-center justify-center text-yellow-400 font-bold text-2xl">
+            🎖️
           </div>
           <div>
-            <div class="text-xs text-yellow-400 font-mono font-bold tracking-wider uppercase">Chứng nhận thực chiến</div>
-            <div class="text-white font-bold text-sm">AWS Data Engineer Intern Candidate</div>
+            <div class="text-xs text-yellow-400 font-mono font-bold tracking-wider uppercase">Grandmaster Certificate</div>
+            <div class="text-white font-bold text-base">AWS Data Engineer Intern Ready</div>
           </div>
         </div>
-        <div class="space-y-1.5 text-xs text-slate-300 font-mono">
-          <div class="flex justify-between"><span>Tổng điểm tích lũy:</span><b id="final-xp" class="text-yellow-400 font-bold">700 XP</b></div>
-          <div class="flex justify-between"><span>Độ chính xác kỹ thuật:</span><b id="final-accuracy" class="text-cyan-400">100%</b></div>
-          <div class="flex justify-between"><span>Đánh giá năng lực:</span><b class="text-emerald-400 font-bold">SẴN SÀNG PHỎNG VẤN</b></div>
+        <div class="space-y-2 text-xs text-slate-300 font-mono">
+          <div class="flex justify-between"><span>Số ải hoàn thành:</span><b class="text-emerald-400 font-bold">30 / 30 Quests</b></div>
+          <div class="flex justify-between"><span>Tổng điểm tích lũy:</span><b id="final-xp" class="text-yellow-400 font-bold">3000 XP</b></div>
+          <div class="flex justify-between"><span>Tỷ lệ chính xác:</span><b id="final-accuracy" class="text-cyan-400">100%</b></div>
+          <div class="flex justify-between"><span>Trạng thái:</span><b class="text-emerald-400 font-bold">SẴN SÀNG NỘP CV THỰC TẬP</b></div>
         </div>
       </div>
 
       <div class="flex flex-wrap justify-center gap-3">
         <button onclick="restartGame()" class="px-6 py-2.5 bg-slate-800 hover:bg-slate-700 text-white font-bold rounded-xl text-sm transition">
-          🔄 Chơi lại ôn tập
+          🔄 Chơi lại
         </button>
         <button onclick="shareResult()" class="px-6 py-2.5 bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold rounded-xl text-sm transition">
-          📋 Sao chép kết quả nộp bài
+          📋 Sao chép kết quả 30/30 nộp bài
         </button>
       </div>
     </div>
@@ -238,34 +257,38 @@
   <div id="modal-cheatsheet" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
     <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-2xl w-full p-6 max-h-[85vh] overflow-y-auto">
       <div class="flex items-center justify-between border-b border-slate-800 pb-3 mb-4">
-        <h3 class="font-bold text-cyan-400 text-lg flex items-center gap-2">
-          <i class="fa-solid fa-bolt"></i> BÍ KÍP NHỚ NHANH (SQL & DOCKER CHEAT SHEET)
+        <h3 class="font-bold text-cyan-400 text-base sm:text-lg flex items-center gap-2">
+          <i class="fa-solid fa-bolt"></i> BÍ KÍP 30 KHÁI NIỆM DATA ENGINEER CỐT LÕI
         </h3>
         <button onclick="toggleCheatSheet()" class="text-slate-400 hover:text-white text-xl">✕</button>
       </div>
-      <div class="space-y-4 text-xs font-mono text-slate-300">
+      <div class="space-y-3 text-xs font-mono text-slate-300">
         <div class="bg-slate-950 p-3 rounded-lg border border-slate-800">
-          <div class="text-cyan-300 font-bold mb-1">1. Docker pgAdmin kết nối Postgres</div>
-          <div class="text-slate-400">Host name: <span class="text-yellow-300">postgres</span> (tên container trong docker-compose, KHÔNG ĐƯỢC dùng localhost).</div>
+          <div class="text-cyan-300 font-bold mb-1">1. Docker Network & Volumes</div>
+          <div class="text-slate-400">Trong cùng network, dùng tên service (ví dụ <code class="text-yellow-300">postgres</code>) thay vì localhost. Dùng Volume để dữ liệu không bị mất khi <code class="text-yellow-300">docker compose down</code>.</div>
         </div>
         <div class="bg-slate-950 p-3 rounded-lg border border-slate-800">
-          <div class="text-cyan-300 font-bold mb-1">2. Chống lỗi chia cho 0 (Division by Zero)</div>
-          <div class="text-slate-400">Dùng: <span class="text-yellow-300">NULLIF(fare_amount, 0)</span>. Nếu mẫu bằng 0 biến thành NULL, phép chia ra NULL chứ không crash.</div>
+          <div class="text-cyan-300 font-bold mb-1">2. Chống lỗi chia cho 0 & Xử lý NULL</div>
+          <div class="text-slate-400"><code class="text-yellow-300">NULLIF(val, 0)</code>: biến 0 thành NULL để phép chia an toàn. <code class="text-yellow-300">COALESCE(col, default)</code>: gán giá trị mặc định khi gặp NULL.</div>
         </div>
         <div class="bg-slate-950 p-3 rounded-lg border border-slate-800">
-          <div class="text-cyan-300 font-bold mb-1">3. Khử trùng lặp dữ liệu (Deduplication)</div>
-          <div class="text-slate-400">Dùng: <span class="text-yellow-300">ROW_NUMBER() OVER (PARTITION BY id ORDER BY updated_at DESC) AS rn</span> rồi lọc <span class="text-yellow-300">WHERE rn = 1</span>.</div>
+          <div class="text-cyan-300 font-bold mb-1">3. Xử lý thời gian Data Warehouse</div>
+          <div class="text-slate-400"><code class="text-yellow-300">DATE_TRUNC('day', dt)</code>: đưa về đầu ngày (00:00:00). <code class="text-yellow-300">EXTRACT(HOUR FROM dt)</code>: trích xuất số giờ từ 0-23.</div>
         </div>
         <div class="bg-slate-950 p-3 rounded-lg border border-slate-800">
-          <div class="text-cyan-300 font-bold mb-1">4. So sánh với chuyến trước / sau</div>
-          <div class="text-slate-400"><span class="text-yellow-300">LAG(col)</span>: Lấy dòng trước. <span class="text-yellow-300">LEAD(col)</span>: Lấy dòng sau.</div>
+          <div class="text-cyan-300 font-bold mb-1">4. Window Functions cốt lõi</div>
+          <div class="text-slate-400"><code class="text-yellow-300">ROW_NUMBER()</code>: Khử trùng lặp (rn = 1). <code class="text-yellow-300">DENSE_RANK()</code>: Xếp Top N không nhảy cóc số. <code class="text-yellow-300">LAG() / LEAD()</code>: Lấy dòng trước / sau. <code class="text-yellow-300">SUM() OVER (ORDER BY dt)</code>: Tính tổng dồn lũy kế.</div>
         </div>
         <div class="bg-slate-950 p-3 rounded-lg border border-slate-800">
-          <div class="text-cyan-300 font-bold mb-1">5. Xếp hạng Top N không bị nhảy số</div>
-          <div class="text-slate-400"><span class="text-yellow-300">DENSE_RANK()</span>: Đồng hạng 1, tiếp theo vẫn là hạng 2 (khác với RANK() sẽ nhảy lên hạng 3).</div>
+          <div class="text-cyan-300 font-bold mb-1">5. Tối ưu hóa Database (Indexing)</div>
+          <div class="text-slate-400"><code class="text-yellow-300">EXPLAIN ANALYZE</code> để xem Query Plan. B-Tree Index chuyển từ Seq Scan (chậm) sang Index Scan (nhanh).</div>
+        </div>
+        <div class="bg-slate-950 p-3 rounded-lg border border-slate-800">
+          <div class="text-cyan-300 font-bold mb-1">6. AWS DEA-C01 Storage & Compute</div>
+          <div class="text-slate-400">OLTP (Aurora/RDS) tra cứu theo hàng &lt;10ms. OLAP (Redshift/Athena) quét hàng triệu dòng. S3 Lifecycle chuyển dữ liệu cũ sang Glacier tiết kiệm chi phí.</div>
         </div>
       </div>
-      <div class="mt-5 text-right">
+      <div class="mt-4 text-right">
         <button onclick="toggleCheatSheet()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-lg text-xs font-bold">Đóng</button>
       </div>
     </div>
@@ -273,12 +296,11 @@
 
   <!-- FOOTER -->
   <footer class="border-t border-slate-800/80 py-3 text-center text-xs text-slate-500 font-mono">
-    Tuần 1: Docker, Ingestion Pipeline & Advanced SQL • Hướng tới AWS Certified Data Engineer (DEA-C01)
+    Data Engineering Zoomcamp • Tuần 1: Docker, Batch Ingestion & Advanced SQL • AWS DEA-C01 Edition
   </footer>
 
-  <!-- JAVASCRIPT GAME ENGINE -->
+  <!-- JAVASCRIPT GAME ENGINE: 30 MISSIONS -->
   <script>
-    // PROCEDURAL AUDIO SYNTHESIZER (NO EXTERNAL MP3 NEEDED)
     let audioCtx = null;
     let soundEnabled = true;
 
@@ -300,8 +322,8 @@
 
         if (type === 'correct') {
           osc.type = 'triangle';
-          osc.frequency.setValueAtTime(523.25, now); // C5
-          osc.frequency.exponentialRampToValueAtTime(783.99, now + 0.15); // G5
+          osc.frequency.setValueAtTime(523.25, now);
+          osc.frequency.exponentialRampToValueAtTime(783.99, now + 0.15);
           gain.gain.setValueAtTime(0.15, now);
           gain.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
           osc.start(now);
@@ -314,126 +336,446 @@
           gain.gain.exponentialRampToValueAtTime(0.01, now + 0.25);
           osc.start(now);
           osc.stop(now + 0.25);
+        } else if (type === 'heal') {
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(440, now);
+          osc.frequency.exponentialRampToValueAtTime(880, now + 0.3);
+          gain.gain.setValueAtTime(0.2, now);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+          osc.start(now);
+          osc.stop(now + 0.3);
         } else if (type === 'victory') {
-          const notes = [440, 554, 659, 880];
+          const notes = [440, 554, 659, 880, 1108];
           notes.forEach((freq, idx) => {
             const o = audioCtx.createOscillator();
             const g = audioCtx.createGain();
             o.connect(g);
             g.connect(audioCtx.destination);
             o.frequency.value = freq;
-            g.gain.setValueAtTime(0.1, now + idx * 0.1);
-            g.gain.exponentialRampToValueAtTime(0.01, now + idx * 0.1 + 0.25);
-            o.start(now + idx * 0.1);
-            o.stop(now + idx * 0.1 + 0.25);
+            g.gain.setValueAtTime(0.1, now + idx * 0.08);
+            g.gain.exponentialRampToValueAtTime(0.01, now + idx * 0.08 + 0.25);
+            o.start(now + idx * 0.08);
+            o.stop(now + idx * 0.08 + 0.25);
           });
         }
-      } catch (e) {
-        // Fallback silently if audio blocked
-      }
+      } catch (e) {}
     }
 
     function toggleSound() {
       soundEnabled = !soundEnabled;
       const icon = document.getElementById('sound-icon');
-      if (soundEnabled) {
-        icon.className = 'fa-solid fa-volume-high';
-      } else {
-        icon.className = 'fa-solid fa-volume-xmark text-slate-500';
-      }
+      icon.className = soundEnabled ? 'fa-solid fa-volume-high' : 'fa-solid fa-volume-xmark text-slate-500';
     }
 
-    // GAME MISSIONS DATABASE
+    // 30 COMPREHENSIVE DATA ENGINEERING MISSIONS
     const missions = [
+      // CHƯƠNG 1: DOCKER & CONTAINER FOUNDATIONS (1 - 6)
       {
         id: 1,
-        topic: "Docker Network DNS",
-        story: "Bạn vừa bật container PostgreSQL và pgAdmin qua docker-compose. Bạn mở pgAdmin trên web để kết nối database nhưng bị báo lỗi 'Connection Refused'! Tại sao?",
-        code: "-- Cấu hình trong tab Connection của pgAdmin:\nHost name/address: [  ???  ]\nPort: 5432\nDatabase: ny_taxi\nUsername: root",
+        chapter: "Chương 1",
+        topic: "Docker Internal DNS",
+        story: "Container pgAdmin không thể kết nối tới container PostgreSQL và báo lỗi 'Connection Refused'. Tên host nào phải được điền vào mục Host name?",
+        code: "Cấu hình Server Connection trong pgAdmin:\nHost name/address: [  ???  ]\nPort: 5432\nDatabase: ny_taxi\nUsername: root",
         choices: [
-          { text: "localhost", correct: false, note: "SAI! Trong Docker, 'localhost' của container pgAdmin chỉ trỏ về chính nó, không nhìn thấy container PostgreSQL." },
-          { text: "postgres", correct: true, note: "CHÍNH XÁC! Khi chung Docker Network, Docker tự cấp DNS nội bộ: ta dùng tên service 'postgres' để kết nối." },
-          { text: "127.0.0.1", correct: false, note: "SAI! 127.0.0.1 cũng tương đương với localhost nội tại của container pgAdmin." },
-          { text: "docker-daemon", correct: false, note: "SAI! Đây không phải là tên service đã khai báo trong docker-compose.yaml." }
+          { text: "localhost", correct: false, note: "SAI! localhost trỏ về chính container pgAdmin, không tới được container database." },
+          { text: "postgres", correct: true, note: "CHÍNH XÁC! Docker Bridge Network tự cung cấp DNS nội bộ, ánh xạ tên service 'postgres' thành IP nội bộ của database." },
+          { text: "127.0.0.1", correct: false, note: "SAI! 127.0.0.1 cũng chính là loopback cục bộ của container pgAdmin." },
+          { text: "host.docker.internal", correct: false, note: "SAI! Đây là cách trỏ về máy host ngoài đời, không chuẩn bằng DNS nội bộ giữa các container." }
         ]
       },
       {
         id: 2,
-        topic: "Clean Data & Chống lỗi sập Pipeline",
-        story: "Pipeline tính tỷ lệ tiền Tip (% Tip = tip_amount / fare_amount) bị sập giữa chừng với mã lỗi 'Division by zero' vì có các chuyến đi miễn phí (fare_amount = 0). Cần sửa thế nào?",
-        code: "SELECT \n    ROUND( (tip_amount / [ ??? ] * 100)::numeric, 2) AS tip_pct\nFROM yellow_taxi_trips;",
+        chapter: "Chương 1",
+        topic: "Port Mapping",
+        story: "Trong docker-compose.yaml, cấu hình ports '8080:80' cho pgAdmin có ý nghĩa gì?",
+        code: "services:\n  pgadmin:\n    image: dpage/pgadmin4\n    ports:\n      - \"8080:80\"",
         choices: [
-          { text: "COALESCE(fare_amount, 0)", correct: false, note: "SAI! Nếu fare_amount = 0 thì nó vẫn giữ nguyên là 0, phép chia cho 0 vẫn làm sập câu lệnh!" },
-          { text: "NULLIF(fare_amount, 0)", correct: true, note: "CHÍNH XÁC! NULLIF biến số 0 thành NULL. Số chia cho NULL sẽ ra NULL thay vì báo lỗi đỏ sập hệ thống." },
-          { text: "ABS(fare_amount)", correct: false, note: "SAI! ABS chỉ lấy giá trị tuyệt đối, ABS(0) vẫn bằng 0." },
-          { text: "ISNULL(fare_amount, 1)", correct: false, note: "SAI! Nếu fare_amount = 0 thì không phải NULL, nó không biến thành 1 được." }
+          { text: "Cổng 8080 trên container chuyển tiếp ra cổng 80 máy thật", correct: false, note: "SAI! Cú pháp chuẩn luôn là HOST_PORT:CONTAINER_PORT." },
+          { text: "Cổng 8080 trên máy thật chuyển tiếp vào cổng 80 của container", correct: true, note: "CHÍNH XÁC! Khi bạn mở localhost:8080 trên trình duyệt máy thật, Docker chuyển traffic vào cổng 80 nội bộ của pgAdmin." },
+          { text: "Cả máy thật và container đều dùng chung cổng 8080", correct: false, note: "SAI! Container dùng cổng 80." },
+          { text: "Chỉ mở cổng 8080 nội bộ giữa các container", correct: false, note: "SAI! Cấu hình ports công khai ra bên ngoài máy host." }
         ]
       },
       {
         id: 3,
-        topic: "Window Function - Khử trùng lặp (Deduplication)",
-        story: "Do lỗi mạng, một số chuyến xe bị nạp trùng nhiều lần vào Database. Trưởng nhóm yêu cầu bạn viết query chỉ giữ lại 1 bản ghi duy nhất cho mỗi chuyến đi. Dùng hàm nào?",
-        code: "WITH ranked AS (\n    SELECT *,\n        [ ??? ] OVER (\n            PARTITION BY trip_id \n            ORDER BY tpep_pickup_datetime DESC\n        ) AS rn\n    FROM yellow_taxi_trips\n)\nSELECT * FROM ranked WHERE rn = 1;",
+        chapter: "Chương 1",
+        topic: "Volume Persistence",
+        story: "Khi bạn gõ lệnh 'docker compose down', tại sao toàn bộ dữ liệu 3 triệu bản ghi trong PostgreSQL không bị mất?",
+        code: "volumes:\n  - pgdata:/var/lib/postgresql/data\nvolumes:\n  pgdata:",
         choices: [
-          { text: "DENSE_RANK()", correct: false, note: "CHƯA TỐI ƯU! Nếu 2 bản ghi trùng cả thời gian, DENSE_RANK() sẽ cho đồng hạng 1, dẫn đến kết quả vẫn còn bản ghi trùng." },
-          { text: "ROW_NUMBER()", correct: true, note: "CHUẨN SENIOR! ROW_NUMBER() luôn sinh số nguyên 1, 2, 3 liên tục duy nhất, đảm bảo WHERE rn = 1 chỉ lấy đúng 1 bản ghi!" },
-          { text: "COUNT(*)", correct: false, note: "SAI! COUNT(*) chỉ đếm tổng số, không dùng để xếp thứ tự đánh chỉ mục dòng." },
-          { text: "LAG()", correct: false, note: "SAI! LAG() dùng để lấy giá trị của dòng trước, không tạo số thứ tự để lọc bản ghi." }
+          { text: "Vì PostgreSQL mặc định lưu vào RAM máy tính", correct: false, note: "SAI! RAM là bộ nhớ tạm thời, tắt máy là mất." },
+          { text: "Nhờ Named Volume 'pgdata' mount thư mục dữ liệu ra ổ cứng vật lý của máy host", correct: true, note: "CHÍNH XÁC! Volume tách biệt vòng đời dữ liệu khỏi vòng đời container (ephemeral lifecycle)." },
+          { text: "Vì image postgres:15-alpine tự động sao lưu lên cloud", correct: false, note: "SAI! Docker image chỉ là template phần mềm, không tự backup cloud." },
+          { text: "Vì docker compose down chỉ tạm dừng chứ không xóa container", correct: false, note: "SAI! docker compose down xóa sạch container, nhưng volume được giữ lại." }
         ]
       },
       {
         id: 4,
-        topic: "Window Function - Tính thời gian chờ (Fleet Idle Time)",
-        story: "Trưởng điều hành sân bay JFK muốn biết: 'Mỗi chiếc taxi đón khách cách chuyến đón khách liền trước đó bao nhiêu phút?' Bạn dùng hàm gì để nhìn lại dòng phía trước?",
-        code: "SELECT \n    tpep_pickup_datetime,\n    [ ??? ](tpep_pickup_datetime) OVER (\n        PARTITION BY \"PULocationID\"\n        ORDER BY tpep_pickup_datetime ASC\n    ) AS previous_pickup_time\nFROM yellow_taxi_trips;",
+        chapter: "Chương 1",
+        topic: "Dockerfile ENTRYPOINT vs CMD",
+        story: "Tại sao trong Dockerfile của pipeline, ta lại dùng ENTRYPOINT [\"python\", \"pipeline.py\"] thay vì CMD?",
+        code: "COPY pipeline.py .\nENTRYPOINT [\"python\", \"pipeline.py\"]",
         choices: [
-          { text: "LEAD", correct: false, note: "SAI! LEAD() nhìn về dòng TƯƠNG LAI (dòng phía dưới), không nhìn về quá khứ." },
-          { text: "LAG", correct: true, note: "XUẤT SẮC! LAG() cho phép lấy giá trị của dòng nằm ngay trước nó theo thứ tự ORDER BY." },
-          { text: "FIRST_VALUE", correct: false, note: "SAI! FIRST_VALUE chỉ lấy giá trị của dòng đầu tiên của cả bảng/nhóm, không phải dòng liền trước." },
-          { text: "PREVIOUS", correct: false, note: "SAI! Trong chuẩn SQL không có hàm tên là PREVIOUS." }
+          { text: "Để có thể truyền thêm các tham số dòng lệnh CLI (--user, --db, --url) khi chạy container", correct: true, note: "CHÍNH XÁC! ENTRYPOINT biến container thành 1 công cụ CLI có thể nhận thêm argument từ lệnh docker run." },
+          { text: "ENTRYPOINT giúp code chạy nhanh gấp 2 lần CMD", correct: false, note: "SAI! ENTRYPOINT và CMD không ảnh hưởng đến tốc độ thực thi của Python." },
+          { text: "CMD bắt buộc phải chạy file bash .sh, không chạy được python", correct: false, note: "SAI! CMD hoàn toàn chạy được python." },
+          { text: "Để ẩn mã nguồn pipeline.py không cho người khác xem", correct: false, note: "SAI! Không liên quan đến bảo mật mã nguồn." }
         ]
       },
       {
         id: 5,
-        topic: "Window Function - Top N không nhảy cóc thứ hạng",
-        story: "Bạn cần tìm Top 3 địa điểm đón khách doanh thu cao nhất. Nếu có 2 địa điểm đồng hạng 1 (cùng doanh thu $10,000), bạn muốn địa điểm tiếp theo xếp hạng 2 (chứ không phải hạng 3). Dùng hàm gì?",
-        code: "SELECT \n    location_id,\n    revenue,\n    [ ??? ] OVER (ORDER BY revenue DESC) AS rank_pos\nFROM daily_summary;",
+        chapter: "Chương 1",
+        topic: "Docker Healthcheck & depends_on",
+        story: "Pipeline container bị crash ngay khi bật vì PostgreSQL chưa kịp khởi động xong dịch vụ. Cần thêm điều kiện gì vào depends_on?",
+        code: "ingest:\n  depends_on:\n    postgres:\n      condition: [  ???  ]",
         choices: [
-          { text: "RANK()", correct: false, note: "SAI! RANK() sẽ xếp thứ tự là: 1, 1, 3 (nhảy cóc mất vị trí số 2)." },
-          { text: "ROW_NUMBER()", correct: false, note: "SAI! ROW_NUMBER() sẽ ép 1 chỗ là hạng 1, chỗ kia là hạng 2 dù doanh thu bằng nhau hoàn toàn." },
-          { text: "DENSE_RANK()", correct: true, note: "CHÍNH XÁC! 'DENSE' có nghĩa là đặc, liền mạch: 1, 1, 2, 3 (không nhảy cóc thứ hạng)." },
-          { text: "NTILE(3)", correct: false, note: "SAI! NTILE(3) chia dữ liệu thành 3 xô đều nhau, không phải xếp thứ hạng Top N." }
+          { text: "service_started", correct: false, note: "CHƯA ĐỦ! Container vừa start không có nghĩa là PostgreSQL đã sẵn sàng nhận kết nối mạng." },
+          { text: "service_healthy", correct: true, note: "CHUẨN SENIOR! condition: service_healthy sẽ đợi pg_isready trả về thành công trước khi chạy pipeline." },
+          { text: "service_completed_successfully", correct: false, note: "SAI! Database là dịch vụ chạy liên tục, nó sẽ không bao giờ completed." },
+          { text: "service_restarted", correct: false, note: "SAI! Đây không phải trạng thái hợp lệ để chờ database." }
         ]
       },
       {
         id: 6,
-        topic: "Data Warehouse - Date Truncation",
-        story: "Giám đốc tài chính muốn tổng hợp doanh thu theo từng ngày. Timestamp lưu dạng: '2023-01-15 14:35:28'. Làm sao để đưa toàn bộ chuyến trong ngày về mốc '2023-01-15 00:00:00' để GROUP BY?",
-        code: "SELECT \n    [ ??? ]('day', tpep_pickup_datetime) AS trip_day,\n    SUM(total_amount) AS revenue\nFROM yellow_taxi_trips\nGROUP BY 1;",
+        chapter: "Chương 1",
+        topic: "Quản lý Secret trong Docker",
+        story: "Quy tắc bảo mật quan trọng nhất khi viết docker-compose.yaml và Dockerfile chuẩn bị push lên GitHub là gì?",
+        code: "POSTGRES_PASSWORD=my_super_secret_password",
         choices: [
-          { text: "EXTRACT", correct: false, note: "SAI! EXTRACT('day', ...) chỉ trả về con số ngày trong tháng (ví dụ số 15), làm mất thông tin tháng và năm!" },
-          { text: "DATE_TRUNC", correct: true, note: "CHUẨN XÁC! DATE_TRUNC('day', timestamp) cắt gọn phần giờ/phút/giây về 00:00:00 của ngày đó. Đây là hàm vàng trong Data Warehouse." },
-          { text: "ROUND", correct: false, note: "SAI! ROUND() chỉ dùng cho kiểu số thực (float/numeric)." },
-          { text: "TRIM", correct: false, note: "SAI! TRIM() dùng để cắt khoảng trắng của chuỗi văn bản (string)." }
+          { text: "Lưu trực tiếp mật khẩu vào Dockerfile rồi nén lại", correct: false, note: "SAI! Bất kỳ ai pull image đều có thể xem ngược lại lịch sử build." },
+          { text: "Dùng file .env và đưa .env vào .gitignore để không bị lộ trên GitHub", correct: true, note: "CHÍNH XÁC! Tuyệt đối không commit password, API key, AWS secret lên kho lưu trữ code công khai." },
+          { text: "Đổi mật khẩu thành số 123456 cho dễ nhớ", correct: false, note: "SAI! Mật khẩu yếu gây nguy cơ bị tấn công scan bot." },
+          { text: "Không cần bảo mật vì Docker local không ai truy cập được", correct: false, note: "SAI! Khi push repo lên GitHub công khai, bot sẽ quét lộ key ngay." }
+        ]
+      },
+
+      // CHƯƠNG 2: DATA CLEANING & SQL CORE FUNCTIONS (7 - 13)
+      {
+        id: 7,
+        chapter: "Chương 2",
+        topic: "Chống lỗi chia cho 0",
+        story: "Phép tính tỷ lệ tip gặp lỗi sập query vì một số chuyến xe có cước phí fare_amount = 0. Hàm nào biến số 0 thành NULL an toàn?",
+        code: "SELECT \n    ROUND((tip_amount / [ ??? ](fare_amount, 0) * 100)::numeric, 2) AS tip_pct\nFROM yellow_taxi_trips;",
+        choices: [
+          { text: "COALESCE", correct: false, note: "SAI! COALESCE(0, 0) vẫn ra 0, phép chia cho 0 vẫn gây sập câu lệnh." },
+          { text: "NULLIF", correct: true, note: "CHÍNH XÁC! NULLIF(a, b) trả về NULL nếu a = b. Phép chia cho NULL trả về NULL chứ không báo lỗi." },
+          { text: "ZEROIFNULL", correct: false, note: "SAI! ZEROIFNULL làm ngược lại, biến NULL thành 0." },
+          { text: "ISNULL", correct: false, note: "SAI! ISNULL kiểm tra xem một giá trị có phải NULL hay không." }
         ]
       },
       {
-        id: 7,
-        topic: "AWS Certified Data Engineer (DEA-C01) Scenario",
-        story: "Ứng dụng gọi xe cần tra cứu thông tin chi tiết của 1 chuyến xe trong vòng 5 mili-giây theo mã chuyến đi, đồng thời ghi nhận 1,000 giao dịch mới mỗi giây (yêu cầu ACID). Theo chuẩn AWS, chọn dịch vụ nào?",
-        code: "-- Yêu cầu: High IOPS, Single-row lookup < 10ms, ACID compliance.\n-- Dịch vụ tối ưu nhất là gì?",
+        id: 8,
+        chapter: "Chương 2",
+        topic: "Xử lý giá trị NULL",
+        story: "Cột passenger_count bị NULL ở một số chuyến xe. Làm sao để nếu NULL thì tự động gán là 1 khách?",
+        code: "SELECT [ ??? ](passenger_count, 1) AS final_passengers\nFROM yellow_taxi_trips;",
         choices: [
-          { text: "Amazon Athena trên file Parquet tại S3", correct: false, note: "SAI! Athena là công cụ Serverless OLAP, độ trễ mỗi câu truy vấn mất 1-3 giây, không thích hợp cho tra cứu mili-giây." },
-          { text: "Amazon Redshift Provisioned Cluster", correct: false, note: "SAI! Redshift là Data Warehouse cột (Columnar), tối ưu cho quét hàng triệu dòng, ghi từng dòng đơn lẻ rất chậm và tốn tài nguyên." },
-          { text: "Amazon Aurora PostgreSQL (hoặc Amazon RDS)", correct: true, note: "XUẤT SẮC! ĐÂY LÀ ĐÁP ÁN ĐỀ THI AWS DEA-C01! RDS/Aurora là hệ quản trị OLTP hướng dòng, hỗ trợ index B-Tree tra cứu cực nhanh dưới 10ms và đảm bảo ACID." },
-          { text: "AWS Glue Crawler", correct: false, note: "SAI! Glue Crawler chỉ là công cụ quét metadata tạo Schema Catalog, không phải database lưu trữ." }
+          { text: "NULLIF(passenger_count, 1)", correct: false, note: "SAI! NULLIF sẽ biến số 1 thành NULL." },
+          { text: "COALESCE(passenger_count, 1)", correct: true, note: "CHÍNH XÁC! COALESCE trả về giá trị đầu tiên khác NULL." },
+          { text: "DEFAULT(passenger_count, 1)", correct: false, note: "SAI! DEFAULT chỉ dùng khi định nghĩa Schema DDL." },
+          { text: "IFNULL_OR_ZERO(passenger_count)", correct: false, note: "SAI! Hàm này không tồn tại trong chuẩn PostgreSQL." }
+        ]
+      },
+      {
+        id: 9,
+        chapter: "Chương 2",
+        topic: "CASE WHEN Categorization",
+        story: "Phân loại chuyến đi thành 2 nhóm: 'Rush Hour' nếu đi trong khoảng từ 7 đến 9 giờ sáng, còn lại là 'Normal'. Cú pháp đúng là gì?",
+        code: "SELECT \n    [  ???  ]\nFROM yellow_taxi_trips;",
+        choices: [
+          { text: "IF EXTRACT(HOUR FROM tpep_pickup_datetime) IN (7,8,9) THEN 'Rush Hour' ELSE 'Normal'", correct: false, note: "SAI! Chuẩn SQL dùng CASE WHEN chứ không dùng lệnh IF độc lập trong SELECT." },
+          { text: "CASE WHEN EXTRACT(HOUR FROM tpep_pickup_datetime) IN (7,8,9) THEN 'Rush Hour' ELSE 'Normal' END", correct: true, note: "CHÍNH XÁC! Cấu trúc bắt buộc: CASE WHEN <điều_kiện> THEN <kết_quả> ELSE <mặc_định> END." },
+          { text: "SWITCH EXTRACT(HOUR FROM tpep_pickup_datetime) CASE (7,8,9): 'Rush Hour'", correct: false, note: "SAI! SQL không có từ khóa SWITCH." },
+          { text: "DECODE(EXTRACT(HOUR FROM ...), 7, 'Rush Hour', 'Normal')", correct: false, note: "SAI! DECODE là hàm cũ của Oracle, không linh hoạt và không chuẩn ANSI SQL." }
+        ]
+      },
+      {
+        id: 10,
+        chapter: "Chương 2",
+        topic: "DATE_TRUNC trong Data Warehouse",
+        story: "Bạn cần tính tổng doanh thu theo từng tháng trong năm 2023. Làm sao cắt mốc thời gian '2023-01-15 14:35:00' về '2023-01-01 00:00:00'?",
+        code: "SELECT \n    [ ??? ]('month', tpep_pickup_datetime) AS trip_month,\n    SUM(total_amount) AS revenue\nFROM yellow_taxi_trips\nGROUP BY 1;",
+        choices: [
+          { text: "EXTRACT", correct: false, note: "SAI! EXTRACT('month', dt) chỉ trả về con số 1 (tháng 1), mất mốc năm 2023!" },
+          { text: "DATE_TRUNC", correct: true, note: "CHÍNH XÁC! DATE_TRUNC('month', dt) đưa mốc thời gian về ngày đầu tiên của tháng, bảo toàn năm." },
+          { text: "ROUND_DATE", correct: false, note: "SAI! Không có hàm ROUND_DATE trong PostgreSQL." },
+          { text: "TO_MONTH", correct: false, note: "SAI! Không có hàm TO_MONTH chuẩn." }
+        ]
+      },
+      {
+        id: 11,
+        chapter: "Chương 2",
+        topic: "EXTRACT - Phân tích giờ cao điểm",
+        story: "Để tìm khung giờ nào trong ngày (từ 0 đến 23) có lượng khách đón xe cao nhất, ta dùng hàm gì?",
+        code: "SELECT \n    [ ??? ](HOUR FROM tpep_pickup_datetime) AS pickup_hour,\n    COUNT(*) AS total_rides\nFROM yellow_taxi_trips\nGROUP BY 1\nORDER BY total_rides DESC;",
+        choices: [
+          { text: "EXTRACT", correct: true, note: "XUẤT SẮC! EXTRACT(HOUR FROM col) trích xuất số nguyên giờ từ 0 đến 23." },
+          { text: "DATE_PART_ALL", correct: false, note: "SAI! Tên hàm đúng là EXTRACT hoặc DATE_PART, không có DATE_PART_ALL." },
+          { text: "GET_HOUR", correct: false, note: "SAI! Không có hàm GET_HOUR trong PostgreSQL." },
+          { text: "HOUR_TRUNC", correct: false, note: "SAI! Không có hàm HOUR_TRUNC." }
+        ]
+      },
+      {
+        id: 12,
+        chapter: "Chương 2",
+        topic: "Type Casting (Ép kiểu dữ liệu)",
+        story: "Trong SQL, nếu lấy hai số nguyên chia cho nhau: 5 / 2, kết quả là 2 (bị mất phần thập phân). Làm sao để ra 2.5?",
+        code: "SELECT 5::[ ??? ] / 2 AS result;",
+        choices: [
+          { text: "integer", correct: false, note: "SAI! Ép sang integer vẫn là số nguyên." },
+          { text: "numeric", correct: true, note: "CHÍNH XÁC! 5::numeric hoặc CAST(5 AS NUMERIC) biến thành số thực chính xác, cho kết quả 2.5." },
+          { text: "varchar", correct: false, note: "SAI! varchar là kiểu chuỗi chữ." },
+          { text: "boolean", correct: false, note: "SAI! boolean là kiểu đúng/sai (true/false)." }
+        ]
+      },
+      {
+        id: 13,
+        chapter: "Chương 2",
+        topic: "HAVING vs WHERE",
+        story: "Bạn muốn tìm những địa điểm đón khách có tổng số chuyến lớn hơn 10,000 chuyến. Điều kiện lọc đặt ở đâu?",
+        code: "SELECT \"PULocationID\", COUNT(*) AS total_trips\nFROM yellow_taxi_trips\n[  ???  ]\nGROUP BY \"PULocationID\";",
+        choices: [
+          { text: "WHERE COUNT(*) > 10000 trước GROUP BY", correct: false, note: "SAI NGHIÊM TRỌNG! Mệnh đề WHERE chạy TRƯỚC khi gom nhóm, không thể lọc trên hàm aggregate." },
+          { text: "Đổi WHERE thành HAVING COUNT(*) > 10000 đặt SAU GROUP BY", correct: true, note: "CHUẨN XÁC! HAVING lọc sau khi đã gom nhóm và tính toán aggregate." },
+          { text: "Đặt trong ORDER BY COUNT(*) > 10000", correct: false, note: "SAI! ORDER BY dùng để sắp xếp, không dùng để lọc." },
+          { text: "Đặt trong LIMIT 10000", correct: false, note: "SAI! LIMIT chỉ giới hạn số dòng xuất ra." }
+        ]
+      },
+
+      // CHƯƠNG 3: WINDOW FUNCTIONS MASTERCLASS (14 - 21)
+      {
+        id: 14,
+        chapter: "Chương 3",
+        topic: "Khử trùng lặp (Deduplication)",
+        story: "Pipeline bắn dữ liệu trùng nhiều lần. Trưởng nhóm yêu cầu lọc giữ lại bản ghi có thời gian mới nhất cho mỗi trip_id. Dùng hàm Window nào?",
+        code: "WITH ranked AS (\n    SELECT *,\n        [ ??? ] OVER (\n            PARTITION BY trip_id\n            ORDER BY updated_at DESC\n        ) AS rn\n    FROM raw_trips\n)\nSELECT * FROM ranked WHERE rn = 1;",
+        choices: [
+          { text: "ROW_NUMBER()", correct: true, note: "XUẤT SẮC! ROW_NUMBER() luôn đánh số 1, 2, 3 liên tục duy nhất, đảm bảo rn = 1 chỉ lấy đúng 1 bản ghi mới nhất." },
+          { text: "DENSE_RANK()", correct: false, note: "RỦI RO! Nếu 2 bản ghi trùng thời gian, DENSE_RANK() gán cùng hạng 1 -> vẫn còn dòng trùng!" },
+          { text: "COUNT(*)", correct: false, note: "SAI! COUNT(*) không sinh số thứ tự dòng." },
+          { text: "RANK()", correct: false, note: "RỦI RO! RANK() cũng sẽ đồng hạng 1 nếu trùng thời gian." }
+        ]
+      },
+      {
+        id: 15,
+        chapter: "Chương 3",
+        topic: "DENSE_RANK vs RANK",
+        story: "Có 2 tài xế cùng đạt doanh thu cao nhất $5,000 (đồng hạng 1). Bạn muốn tài xế tiếp theo xếp hạng 2 (chứ không bị nhảy lên hạng 3). Dùng hàm gì?",
+        code: "SELECT \n    driver_id,\n    revenue,\n    [ ??? ] OVER (ORDER BY revenue DESC) AS rank_num\nFROM driver_stats;",
+        choices: [
+          { text: "RANK()", correct: false, note: "SAI! RANK() sẽ nhảy cóc: 1, 1, 3 (mất hạng 2)." },
+          { text: "DENSE_RANK()", correct: true, note: "CHÍNH XÁC! DENSE_RANK() không bao giờ nhảy cóc thứ hạng: 1, 1, 2, 3." },
+          { text: "ROW_NUMBER()", correct: false, note: "SAI! ROW_NUMBER() bắt buộc 1 người là 1, người kia là 2 dù doanh thu bằng nhau." },
+          { text: "PERCENT_RANK()", correct: false, note: "SAI! PERCENT_RANK() tính theo tỷ lệ phần trăm từ 0.0 đến 1.0." }
+        ]
+      },
+      {
+        id: 16,
+        chapter: "Chương 3",
+        topic: "LAG - So sánh quá khứ",
+        story: "Sân bay JFK muốn biết chuyến xe hiện tại đón khách cách chuyến trước đó bao nhiêu phút. Dùng hàm nào để lấy giờ của chuyến liền trước?",
+        code: "SELECT \n    tpep_pickup_datetime,\n    [ ??? ](tpep_pickup_datetime) OVER (\n        PARTITION BY \"PULocationID\"\n        ORDER BY tpep_pickup_datetime ASC\n    ) AS prev_pickup\nFROM yellow_taxi_trips;",
+        choices: [
+          { text: "LAG", correct: true, note: "CHÍNH XÁC! LAG() nhìn về dòng phía trên (quá khứ)." },
+          { text: "LEAD", correct: false, note: "SAI! LEAD() nhìn về dòng phía dưới (tương lai)." },
+          { text: "PREV_ROW", correct: false, note: "SAI! Hàm này không tồn tại trong chuẩn SQL." },
+          { text: "FIRST_VALUE", correct: false, note: "SAI! FIRST_VALUE chỉ lấy giá trị dòng đầu tiên của cả nhóm, không phải dòng liền kề." }
+        ]
+      },
+      {
+        id: 17,
+        chapter: "Chương 3",
+        topic: "LEAD - Dự báo dòng kế tiếp",
+        story: "Bạn muốn hiển thị cùng lúc: điểm trả khách của chuyến đi HIỆN TẠI và điểm đón khách của chuyến đi TIẾP THEO của cùng một tài xế. Dùng hàm gì?",
+        code: "SELECT \n    driver_id,\n    \"DOLocationID\" AS current_dropoff,\n    [ ??? ](\"PULocationID\") OVER (\n        PARTITION BY driver_id \n        ORDER BY tpep_pickup_datetime ASC\n    ) AS next_pickup\nFROM taxi_trips;",
+        choices: [
+          { text: "LEAD", correct: true, note: "XUẤT SẮC! LEAD(col) lấy giá trị của dòng tiếp theo trong cùng partition." },
+          { text: "LAG", correct: false, note: "SAI! LAG() lấy giá trị của dòng phía trước." },
+          { text: "LAST_VALUE", correct: false, note: "SAI! LAST_VALUE lấy dòng cuối cùng của khung window frame." },
+          { text: "NEXT", correct: false, note: "SAI! Không có hàm NEXT() trong SQL." }
+        ]
+      },
+      {
+        id: 18,
+        chapter: "Chương 3",
+        topic: "Running Total (Tổng dồn lũy kế)",
+        story: "Kế toán muốn xem doanh thu tích lũy tăng dần từ ngày 1 đến cuối tháng. Cú pháp Window Function nào tính tổng dồn chuẩn nhất?",
+        code: "SELECT \n    trip_date,\n    daily_revenue,\n    [ ??? ] OVER (ORDER BY trip_date ASC) AS running_total\nFROM daily_summary;",
+        choices: [
+          { text: "SUM(daily_revenue)", correct: true, note: "CHÍNH XÁC! SUM(...) OVER (ORDER BY trip_date) mặc định tính từ đầu bảng đến dòng hiện tại (UNBOUNDED PRECEDING TO CURRENT ROW)." },
+          { text: "COUNT(daily_revenue)", correct: false, note: "SAI! COUNT chỉ đếm số ngày, không tính tổng tiền." },
+          { text: "AVG(daily_revenue)", correct: false, note: "SAI! AVG tính trung bình cộng, không phải tổng dồn." },
+          { text: "CUMULATIVE_SUM(daily_revenue)", correct: false, note: "SAI! Không có hàm tên CUMULATIVE_SUM trong PostgreSQL." }
+        ]
+      },
+      {
+        id: 19,
+        chapter: "Chương 3",
+        topic: "Moving Average (Trung bình trượt)",
+        story: "Để tính trung bình doanh thu trượt của 3 ngày (gồm 2 ngày trước đó và ngày hiện tại), mệnh đề ROWS BETWEEN viết thế nào?",
+        code: "AVG(revenue) OVER (\n    ORDER BY trip_date ASC\n    ROWS BETWEEN [  ???  ] AND CURRENT ROW\n)",
+        choices: [
+          { text: "2 PRECEDING", correct: true, note: "CHUẨN XÁC! 2 PRECEDING (2 dòng trước) + CURRENT ROW (dòng hiện tại) = cửa sổ 3 ngày trượt." },
+          { text: "3 PRECEDING", correct: false, note: "SAI! 3 PRECEDING + CURRENT ROW sẽ thành 4 ngày." },
+          { text: "UNBOUNDED PRECEDING", correct: false, note: "SAI! UNBOUNDED sẽ lấy từ ngày đầu tiên của bảng." },
+          { text: "1 FOLLOWING", correct: false, note: "SAI! FOLLOWING là nhìn về tương lai." }
+        ]
+      },
+      {
+        id: 20,
+        chapter: "Chương 3",
+        topic: "NTILE - Phân đoạn khách hàng",
+        story: "Bạn cần chia tất cả chuyến đi taxi thành 4 nhóm đều nhau (Quartiles) dựa theo số tiền cước từ thấp đến cao. Dùng hàm gì?",
+        code: "SELECT \n    total_amount,\n    [ ??? ](4) OVER (ORDER BY total_amount ASC) AS quartile_bucket\nFROM yellow_taxi_trips;",
+        choices: [
+          { text: "NTILE", correct: true, note: "CHÍNH XÁC! NTILE(n) chia toàn bộ tập dữ liệu thành n xô (buckets) có số lượng bản ghi tương đương nhau." },
+          { text: "BUCKET", correct: false, note: "SAI! Không có hàm BUCKET() trong PostgreSQL." },
+          { text: "SPLIT", correct: false, note: "SAI! SPLIT dùng để tách chuỗi ký tự." },
+          { text: "DIVIDE", correct: false, note: "SAI! DIVIDE không phải hàm phân nhóm." }
+        ]
+      },
+      {
+        id: 21,
+        chapter: "Chương 3",
+        topic: "Thứ tự thực thi SQL (SQL Execution Order)",
+        story: "Tại sao bạn KHÔNG THỂ viết: SELECT ... WHERE ROW_NUMBER() OVER (...) = 1 trong cùng 1 câu truy vấn?",
+        code: "-- Câu query này sẽ báo lỗi cú pháp!\nSELECT * FROM yellow_taxi_trips \nWHERE ROW_NUMBER() OVER (...) = 1;",
+        choices: [
+          { text: "Vì mệnh đề WHERE thực thi TRƯỚC khi các hàm Window Function được tính toán", correct: true, note: "BẢN CHẤT CỰC KỲ QUAN TRỌNG! Thứ tự thực thi: FROM -> WHERE -> GROUP BY -> HAVING -> SELECT (Window Functions) -> ORDER BY." },
+          { text: "Vì PostgreSQL không hỗ trợ số 1 trong hàm ROW_NUMBER", correct: false, note: "SAI! ROW_NUMBER luôn bắt đầu từ 1." },
+          { text: "Vì ROW_NUMBER bắt buộc phải viết chữ thường", correct: false, note: "SAI! SQL không phân biệt hoa thường với tên hàm." },
+          { text: "Vì bảng yellow_taxi_trips không có khóa chính", correct: false, note: "SAI! Window function không yêu cầu khóa chính." }
+        ]
+      },
+
+      // CHƯƠNG 4: ADVANCED SQL, CTES & INDEXING (22 - 25)
+      {
+        id: 22,
+        chapter: "Chương 4",
+        topic: "CTE (Common Table Expression)",
+        story: "Từ khóa nào dùng để định nghĩa một bảng tạm có cấu trúc rõ ràng, giúp code SQL module hóa dễ đọc hơn subquery lồng nhau?",
+        code: "[ ??? ] clean_data AS (\n    SELECT * FROM raw_taxi WHERE total_amount > 0\n)\nSELECT * FROM clean_data;",
+        choices: [
+          { text: "WITH", correct: true, note: "XUẤT SẮC! Cú pháp CTE: WITH <ten_bang> AS (SELECT ...) là tiêu chuẩn vàng của Data Engineer." },
+          { text: "TEMP", correct: false, note: "SAI! Muốn tạo bảng tạm dùng CREATE TEMP TABLE, không dùng trong biểu thức đơn." },
+          { text: "LET", correct: false, note: "SAI! LET là cú pháp trong JavaScript, không phải SQL." },
+          { text: "DEFINE", correct: false, note: "SAI! Không có từ khóa DEFINE trong chuẩn SQL." }
+        ]
+      },
+      {
+        id: 23,
+        chapter: "Chương 4",
+        topic: "EXPLAIN ANALYZE - Phân tích hiệu năng",
+        story: "Lệnh nào giúp bạn đo lường thời gian thực thi thực tế và xem Database đang quét tuần tự (Seq Scan) hay quét chỉ mục (Index Scan)?",
+        code: "[ ??? ] \nSELECT * FROM yellow_taxi_trips \nWHERE tpep_pickup_datetime = '2023-01-15 10:00:00';",
+        choices: [
+          { text: "EXPLAIN ANALYZE", correct: true, note: "CHUẨN SENIOR! EXPLAIN ANALYZE thực thi câu query và in ra Execution Time, Planning Time cùng cây chi phí." },
+          { text: "DEBUG QUERY", correct: false, note: "SAI! Không có lệnh DEBUG QUERY trong SQL." },
+          { text: "SHOW PERFORMANCE", correct: false, note: "SAI! Không có lệnh SHOW PERFORMANCE." },
+          { text: "CHECK SPEED", correct: false, note: "SAI! Lệnh không hợp lệ." }
+        ]
+      },
+      {
+        id: 24,
+        chapter: "Chương 4",
+        topic: "B-Tree Indexing Strategy",
+        story: "Bảng có 3 triệu dòng, câu truy vấn thường xuyên lọc theo ngày đón khách (tpep_pickup_datetime). Tạo index nào để tăng tốc từ 3s xuống 5ms?",
+        code: "CREATE [ ??? ] idx_pickup_time \nON yellow_taxi_trips (tpep_pickup_datetime);",
+        choices: [
+          { text: "INDEX", correct: true, note: "CHÍNH XÁC! CREATE INDEX tạo cây tìm kiếm cân bằng B-Tree trên cột thời gian, loại bỏ hoàn toàn Seq Scan." },
+          { text: "PRIMARY KEY", correct: false, note: "SAI! Thời gian đón khách có thể trùng lặp, không thể làm Primary Key (vốn yêu cầu duy nhất)." },
+          { text: "FOREIGN KEY", correct: false, note: "SAI! Foreign Key dùng để liên kết bảng, không phải tối ưu hóa lọc thời gian." },
+          { text: "VIEW", correct: false, note: "SAI! VIEW là bảng ảo lưu câu truy vấn, không tự động tăng tốc tìm kiếm nếu không có index." }
+        ]
+      },
+      {
+        id: 25,
+        chapter: "Chương 4",
+        topic: "UNION vs UNION ALL",
+        story: "Bạn cần gộp dữ liệu từ 2 bảng taxi_january và taxi_february. Bạn biết chắc 2 bảng này không trùng nhau. Dùng lệnh nào để chạy NHANH HƠN?",
+        code: "SELECT * FROM taxi_january\n[  ???  ]\nSELECT * FROM taxi_february;",
+        choices: [
+          { text: "UNION ALL", correct: true, note: "RẤT CHUẨN! UNION ALL chỉ đơn giản nối 2 bảng lại. UNION (không có ALL) phải thực hiện thêm 1 bước sắp xếp để khử trùng lặp (sort deduplication), tốn rất nhiều CPU & RAM." },
+          { text: "UNION", correct: false, note: "CHẬM HƠN! UNION phải tốn bước kiểm tra và lọc trùng lặp ngầm định." },
+          { text: "JOIN", correct: false, note: "SAI! JOIN ghép theo chiều ngang (thêm cột), không ghép theo chiều dọc (thêm dòng)." },
+          { text: "MERGE INTO", correct: false, note: "SAI! MERGE dùng cho thao tác Upsert (Update + Insert)." }
+        ]
+      },
+
+      // CHƯƠNG 5: PIPELINE & INGESTION ARCHITECTURE (26 - 27)
+      {
+        id: 26,
+        chapter: "Chương 5",
+        topic: "Kỹ thuật Chunking chống OOM",
+        story: "Tệp dữ liệu Parquet nặng 10GB. Tại sao Data Engineer KHÔNG BAO GIỜ dùng lệnh pd.read_parquet() để nạp toàn bộ vào một lần?",
+        code: "# NGUY CƠ SẬP SERVER!\ndf = pd.read_parquet('huge_10gb_file.parquet')",
+        choices: [
+          { text: "Vì Pandas giải nén vào RAM có thể tốn gấp 3-4 lần dung lượng file, gây lỗi Out-Of-Memory (OOM Crash)", correct: true, note: "CHÍNH XÁC! Luôn dùng kỹ thuật đọc theo batch (iter_batches hoặc chunksize) để dung lượng RAM duy trì ổn định." },
+          { text: "Vì Pandas không hỗ trợ đọc file Parquet", correct: false, note: "SAI! Pandas đọc Parquet rất tốt thông qua engine pyarrow." },
+          { text: "Vì file Parquet luôn bắt buộc phải đổi sang CSV trước khi đọc", correct: false, note: "SAI! Parquet là định dạng tối ưu hơn CSV gấp nhiều lần." },
+          { text: "Vì Python không cho phép khai báo biến chứa dữ liệu lớn hơn 1GB", correct: false, note: "SAI! Giới hạn nằm ở RAM vật lý của máy chủ, không phải cú pháp Python." }
+        ]
+      },
+      {
+        id: 27,
+        chapter: "Chương 5",
+        topic: "Giới hạn tham số của PostgreSQL",
+        story: "Khi dùng SQLAlchemy chèn mẻ lớn: method='multi' với chunksize=10,000 trên bảng 19 cột, tại sao PostgreSQL báo lỗi 'parameters truncated'?",
+        code: "10,000 dòng * 19 cột = 190,000 tham số",
+        choices: [
+          { text: "Vì giao thức mạng của PostgreSQL chỉ cho phép tối đa 65,535 tham số trong một câu lệnh chuẩn bị", correct: true, note: "BẢN CHẤT LỖI BẠN VỪA GẶP! Giới hạn số nguyên 16-bit (2^16 - 1 = 65,535). Do đó cần giới hạn số dòng mỗi mẻ nạp dưới 2,000 dòng." },
+          { text: "Vì PostgreSQL không cho phép lưu quá 10,000 dòng dữ liệu", correct: false, note: "SAI! PostgreSQL lưu được hàng tỷ dòng." },
+          { text: "Vì tên bảng yellow_taxi_trips quá dài", correct: false, note: "SAI! Độ dài tên bảng tối đa là 63 ký tự." },
+          { text: "Vì máy tính bị mất kết nối internet", correct: false, note: "SAI! Lỗi do giao thức database, không phải internet." }
+        ]
+      },
+
+      // CHƯƠNG 6: AWS CLOUD & DEA-C01 CORE CONCEPTS (28 - 30)
+      {
+        id: 28,
+        chapter: "Chương 6",
+        topic: "AWS DEA-C01: OLTP vs OLAP",
+        story: "Hệ thống cần ghi nhận 1,000 lượt đặt xe mỗi giây, cập nhật trạng thái chuyến xe tức thời với độ trễ mili-giây và bảo đảm ACID. Dịch vụ AWS nào phù hợp nhất?",
+        code: "-- Yêu cầu: High write throughput, single-record lookup < 10ms, ACID",
+        choices: [
+          { text: "Amazon Aurora PostgreSQL (hoặc RDS PostgreSQL)", correct: true, note: "ĐÁP ÁN ĐỀ THI DEA-C01! Aurora/RDS là cơ sở dữ liệu hướng dòng OLTP lý tưởng cho các tác vụ giao dịch tần suất cao." },
+          { text: "Amazon Athena", correct: false, note: "SAI! Athena là Serverless Query Engine trên S3, độ trễ từ 1-3 giây, không dùng cho giao dịch OLTP." },
+          { text: "Amazon Redshift", correct: false, note: "SAI! Redshift là Data Warehouse cột, ghi từng dòng đơn lẻ rất chậm và tốn chi phí." },
+          { text: "AWS Glue DataBrew", correct: false, note: "SAI! DataBrew là công cụ chuẩn hóa trực quan không cần code, không phải database." }
+        ]
+      },
+      {
+        id: 29,
+        chapter: "Chương 6",
+        topic: "AWS DEA-C01: Serverless Analytics",
+        story: "Bạn có 500GB dữ liệu log taxi dạng Parquet lưu trên Amazon S3. Bạn muốn chạy các câu lệnh SQL phân tích mà KHÔNG MUỐN cài đặt hay quản lý bất kỳ server nào. Dùng gì?",
+        code: "-- Dịch vụ: Serverless SQL Query Engine on Amazon S3",
+        choices: [
+          { text: "Amazon Athena", correct: true, note: "CHÍNH XÁC! Athena cho phép truy vấn trực tiếp dữ liệu trên S3 bằng chuẩn SQL, tính tiền theo số GB dữ liệu quét được." },
+          { text: "Amazon EC2 cài MySQL", correct: false, note: "SAI! Phải tự quản lý server, cấu hình OS, không phải Serverless." },
+          { text: "Amazon DynamoDB", correct: false, note: "SAI! DynamoDB là NoSQL Key-Value, không tối ưu cho truy vấn SQL phân tích ad-hoc trên file Parquet." },
+          { text: "Amazon CloudWatch", correct: false, note: "SAI! CloudWatch là công cụ giám sát tài nguyên và ghi log hệ thống." }
+        ]
+      },
+      {
+        id: 30,
+        chapter: "Chương 6",
+        topic: "AWS DEA-C01: Tối ưu chi phí lưu trữ S3",
+        story: "Dữ liệu taxi từ 3 năm trước hiếm khi được truy cập (chỉ dùng khi cơ quan thuế yêu cầu thanh tra), nhưng cần lưu trữ trong 7 năm với chi phí THẤP NHẤT. Cấu hình gì trên S3?",
+        code: "S3 Lifecycle Configuration:\nTransition to: [  ???  ]",
+        choices: [
+          { text: "S3 Glacier Flexible Deep Archive", correct: true, note: "XUẤT SẮC! ĐÂY LÀ ĐÁP ÁN KINH ĐIỂN CỦA ĐỀ THI AWS! S3 Glacier Deep Archive có giá chỉ ~$0.00099/GB/tháng, rẻ nhất toàn bộ hệ sinh thái AWS cho dữ liệu lưu trữ dài hạn." },
+          { text: "Giữ nguyên ở S3 Standard", correct: false, note: "SAI! S3 Standard đắt gấp 20 lần so với Glacier Deep Archive." },
+          { text: "S3 One Zone-IA", correct: false, note: "SAI! One Zone-IA chỉ lưu trên 1 Availability Zone, rủi ro mất dữ liệu khi có thiên tai, không khuyến nghị cho dữ liệu thanh tra pháp lý." },
+          { text: "Xóa toàn bộ dữ liệu đi để không mất tiền", correct: false, note: "SAI! Pháp lý yêu cầu lưu trữ 7 năm." }
         ]
       }
     ];
 
     let currentMissionIndex = 0;
-    let lives = 3;
+    let lives = 5; // 5 Hearts
     let xp = 0;
+    let streak = 0;
     let correctAnswersCount = 0;
     let answered = false;
 
@@ -442,8 +784,9 @@
       document.getElementById('screen-start').classList.add('hidden');
       document.getElementById('screen-game').classList.remove('hidden');
       currentMissionIndex = 0;
-      lives = 3;
+      lives = 5;
       xp = 0;
+      streak = 0;
       correctAnswersCount = 0;
       updateHeader();
       renderMission();
@@ -451,9 +794,17 @@
 
     function updateHeader() {
       document.getElementById('xp-display').innerText = xp;
+      document.getElementById('streak-count').innerText = streak;
+      const streakBadge = document.getElementById('streak-badge');
+      if (streak >= 3) {
+        streakBadge.classList.remove('hidden');
+      } else {
+        streakBadge.classList.add('hidden');
+      }
+
       const livesContainer = document.getElementById('lives-container');
       livesContainer.innerHTML = '';
-      for (let i = 0; i < 3; i++) {
+      for (let i = 0; i < 5; i++) {
         if (i < lives) {
           livesContainer.innerHTML += '<i class="fa-solid fa-heart text-red-500"></i>';
         } else {
@@ -469,6 +820,7 @@
       const m = missions[currentMissionIndex];
 
       document.getElementById('mission-badge').innerText = `ẢI ${currentMissionIndex + 1} / ${missions.length}`;
+      document.getElementById('mission-chapter').innerText = m.chapter;
       document.getElementById('mission-topic').innerText = m.topic;
       document.getElementById('mission-story').innerText = m.story;
       document.getElementById('mission-code').innerText = m.code;
@@ -489,6 +841,7 @@
 
       document.getElementById('feedback-box').className = 'hidden';
       document.getElementById('next-btn').classList.add('hidden');
+      document.getElementById('streak-bonus-msg').classList.add('hidden');
     }
 
     function selectChoice(index, buttonEl) {
@@ -504,30 +857,39 @@
       const feedbackBox = document.getElementById('feedback-box');
       const feedbackTitle = document.getElementById('feedback-title');
       const feedbackDesc = document.getElementById('feedback-desc');
+      const streakMsg = document.getElementById('streak-bonus-msg');
 
       feedbackBox.classList.remove('hidden');
 
       if (selected.correct) {
         playSound('correct');
         xp += 100;
+        streak++;
         correctAnswersCount++;
         buttonEl.classList.remove('border-slate-800', 'bg-slate-950/70');
         buttonEl.classList.add('border-emerald-500', 'bg-emerald-950/40', 'text-emerald-300');
 
-        feedbackBox.className = 'rounded-xl p-4 text-sm mb-4 bg-emerald-950/50 border border-emerald-500/40 text-emerald-300';
-        feedbackTitle.innerHTML = '<i class="fa-solid fa-circle-check text-emerald-400"></i> CHÍNH XÁC! (+100 XP)';
+        let healMsg = '';
+        if (streak % 5 === 0 && lives < 5) {
+          lives++;
+          playSound('heal');
+          healMsg = ' ❤️ THƯỞNG STREAK 5: HỒI +1 HP!';
+        }
+
+        feedbackBox.className = 'rounded-xl p-4 text-xs sm:text-sm mb-4 bg-emerald-950/50 border border-emerald-500/40 text-emerald-300';
+        feedbackTitle.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-400"></i> CHÍNH XÁC! (+100 XP)${healMsg}`;
         feedbackDesc.innerText = selected.note;
       } else {
         playSound('wrong');
         lives--;
+        streak = 0;
         buttonEl.classList.remove('border-slate-800', 'bg-slate-950/70');
         buttonEl.classList.add('border-red-500', 'bg-red-950/40', 'text-red-300');
 
-        feedbackBox.className = 'rounded-xl p-4 text-sm mb-4 bg-red-950/50 border border-red-500/40 text-red-300';
+        feedbackBox.className = 'rounded-xl p-4 text-xs sm:text-sm mb-4 bg-red-950/50 border border-red-500/40 text-red-300';
         feedbackTitle.innerHTML = '<i class="fa-solid fa-triangle-exclamation text-red-400"></i> CHƯA CHÍNH XÁC! (-1 HP)';
         feedbackDesc.innerText = selected.note;
 
-        // Highlight the true answer
         m.choices.forEach((c, i) => {
           if (c.correct) {
             allButtons[i].classList.add('border-emerald-500/60', 'bg-emerald-950/20', 'text-emerald-300');
@@ -538,7 +900,7 @@
       updateHeader();
 
       if (lives <= 0) {
-        setTimeout(showGameOver, 1200);
+        setTimeout(showGameOver, 1400);
       } else {
         document.getElementById('next-btn').classList.remove('hidden');
       }
@@ -556,6 +918,7 @@
     function showGameOver() {
       document.getElementById('screen-game').classList.add('hidden');
       document.getElementById('screen-gameover').classList.remove('hidden');
+      document.getElementById('gameover-at').innerText = `Ải ${currentMissionIndex + 1}: ${missions[currentMissionIndex].topic}`;
     }
 
     function showVictory() {
@@ -565,7 +928,7 @@
       document.getElementById('progress-bar').style.width = '100%';
       document.getElementById('final-xp').innerText = `${xp} XP`;
       const accuracy = Math.round((correctAnswersCount / missions.length) * 100);
-      document.getElementById('final-accuracy').innerText = `${accuracy}%`;
+      document.getElementById('final-accuracy').innerText = `${accuracy}% (${correctAnswersCount}/30)`;
     }
 
     function restartGame() {
@@ -580,9 +943,10 @@
     }
 
     function shareResult() {
-      const text = `🏆 Tôi vừa hoàn thành Thử thách "Data Rescue: NYC Arena (Week 1)" với ${xp} XP! Nắm vững Docker, Window Functions và AWS Cloud DWH!`;
+      const accuracy = Math.round((correctAnswersCount / missions.length) * 100);
+      const text = `🏆 Tôi vừa phá đảo trọn vẹn 30/30 Thử thách Data Engineer Arena (Week 1) với ${xp} XP (Chính xác ${accuracy}%)! Thành thạo Docker, Window Functions và AWS Cloud DWH!`;
       navigator.clipboard.writeText(text).then(() => {
-        alert("Đã sao chép kết quả vào Clipboard! Bạn có thể dán vào bài viết hoặc README làm minh chứng.");
+        alert("Đã sao chép kết quả vào Clipboard! Bạn có thể dán vào README hoặc LinkedIn làm minh chứng tự học.");
       });
     }
 
